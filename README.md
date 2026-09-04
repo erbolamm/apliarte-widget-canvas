@@ -2,12 +2,15 @@
 
 > **Bocetea, anota y diseña sobre tu app Flutter real** — Lienzo visual interactivo con Material 3 Expressive, capa sobre captura de pantalla y exportación quirúrgica de prompts.
 
-🌐 **Demo Web en Vivo:** [erbolamm.github.io/apliarte-widget-canvas](https://erbolamm.github.io/apliarte-widget-canvas/)  
-📄 **Landing & Documentación:** [erbolamm.github.io/apliarte-widget-canvas/landing.html](https://erbolamm.github.io/apliarte-widget-canvas/landing.html)
+🌐 **[erbolamm.github.io/apliarte-widget-canvas](https://erbolamm.github.io/apliarte-widget-canvas/)** · 📄 **[Landing Page](https://erbolamm.github.io/apliarte-widget-canvas/landing.html)**
 
 [![Estado](https://img.shields.io/badge/estado-Beta%20Web%20%2B%20Local-orange)](#cómo-funciona)
 [![Platform](https://img.shields.io/badge/platform-Web%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-blue)](#estructura-del-repo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+<p align="center">
+  <img src="trabajo/assets/canvas-dark.png" alt="ApliArte Widget Canvas Preview" width="100%">
+</p>
 
 ---
 

@@ -4,92 +4,620 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ApliArte Widget Canvas — Bocetea tu app Flutter real</title>
+<meta name="description" content="ApliArte Widget Canvas abre tu proyecto Flutter real, te deja anotar con Callouts numerados, flechas y reglas, y exportar prompts quirúrgicos o generar código con IA — 100% en tu máquina.">
+<meta name="theme-color" content="#7a5dd6">
+<meta property="og:title" content="ApliArte Widget Canvas — Bocetea tu app Flutter real">
+<meta property="og:description" content="Boceta, anota y diseña sobre tu app Flutter real. 100% local, gratis, open source.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="./assets/canvas-dark.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@500;700;800&family=Abel&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
   :root {
-    --primary: #005fa9;
-    --navy: #00467b;
-    --cyan: #5ecef5;
-    --glow: #8fd5fa;
+    --primary: #7a5dd6;
+    --navy: #4a2f8a;
+    --cyan: #9d7ff0;
+    --glow: #c0a8f5;
+    --accent: #b5a3e8;
+    --accent-soft: #2a2148;
     --white: #fdfdfd;
     --bg: #141622;
+    --bg-2: #0f111c;
     --surface: #1e2238;
+    --surface-2: #252a44;
     --charcoal: #303030;
     --muted: #bebbb9;
     --border: #a6a6a6;
     --amber: #e8955e;
+    --green: #4ade80;
+    --shadow-glow: 0 0 24px rgba(157, 127, 240, 0.30);
+    --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.25);
+    --radius: 14px;
+    --radius-sm: 10px;
+    --radius-lg: 22px;
   }
+
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
   body {
     margin: 0;
     background: var(--bg);
     color: var(--white);
     font-family: 'Abel', system-ui, sans-serif;
     line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  h1, h2, h3 { font-family: 'Fira Sans Condensed', system-ui, sans-serif; font-weight: 700; }
-  code, .mono { font-family: 'JetBrains Mono', monospace; }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
-  section { padding: 56px 0; }
-  .card {
-    background: var(--surface);
-    border: 1px solid rgba(94, 206, 245, 0.25);
-    border-radius: 14px;
-    padding: 24px;
+  /* Soft animated background — subtle, no noise */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(900px 600px at 12% -10%, rgba(74,47,138,0.40), transparent 60%),
+      radial-gradient(700px 500px at 100% 10%, rgba(157,127,240,0.10), transparent 60%),
+      radial-gradient(800px 600px at 50% 110%, rgba(232,149,94,0.08), transparent 60%);
+    pointer-events: none;
   }
+  h1, h2, h3, h4 { font-family: 'Fira Sans Condensed', system-ui, sans-serif; font-weight: 700; letter-spacing: -0.01em; }
+  code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  a { color: var(--cyan); }
+  a:hover { color: var(--glow); }
+
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 64px 0; position: relative; }
+
+  /* ── Sticky top nav ─────────────────────────────────────── */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(20, 22, 34, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(157, 127, 240, 0.12);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px; max-width: 1140px; margin: 0 auto; gap: 16px;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: 'Fira Sans Condensed', sans-serif; font-weight: 800;
+    color: var(--white); text-decoration: none; font-size: 16px;
+    letter-spacing: 0.01em;
+  }
+  .brand-mark {
+    display: inline-grid; place-items: center;
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--cyan));
+    color: #06131f; font-weight: 800; font-size: 14px;
+    box-shadow: 0 0 12px rgba(157,127,240,0.35);
+  }
+  .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    padding: 6px 12px; border-radius: 999px; font-size: 14px;
+    transition: all .2s ease;
+  }
+  .nav-links a:hover { color: var(--white); background: rgba(157,127,240,0.08); }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, var(--primary), var(--cyan));
+    color: #06131f !important; font-weight: 700; text-decoration: none;
+    padding: 7px 14px; border-radius: 999px; font-size: 13px;
+    box-shadow: 0 0 14px rgba(157,127,240,0.4);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(157,127,240,0.55); color: #06131f !important; }
+
+  /* ── Badges ─────────────────────────────────────────────── */
   .badge {
     display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(94, 206, 245, 0.12);
-    border: 1px solid rgba(94, 206, 245, 0.3);
+    background: rgba(157, 127, 240, 0.12);
+    border: 1px solid rgba(157, 127, 240, 0.3);
     color: var(--cyan);
     padding: 5px 12px; border-radius: 999px; font-size: 13px; margin: 4px 6px 4px 0;
   }
   .badge.amber { color: var(--amber); border-color: rgba(232,149,94,.35); background: rgba(232,149,94,.1); }
+  .badge.green { color: var(--green); border-color: rgba(74,222,128,.35); background: rgba(74,222,128,.1); }
+
+  /* ── Buttons ────────────────────────────────────────────── */
   .btn {
-    display: inline-block;
+    display: inline-flex; align-items: center; gap: 8px;
     background: linear-gradient(135deg, var(--primary), var(--cyan));
     color: #06131f; font-weight: 700; text-decoration: none;
     padding: 12px 22px; border-radius: 10px;
-    box-shadow: 0 0 14px rgba(94, 206, 245, 0.4);
+    box-shadow: 0 0 14px rgba(157, 127, 240, 0.4);
+    transition: transform .2s ease, box-shadow .2s ease;
+    border: none; cursor: pointer; font-size: 15px;
+    font-family: inherit;
   }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(157,127,240,0.5); }
+  .btn:active { transform: translateY(0); }
+  .btn.ghost {
+    background: rgba(255,255,255,0.06);
+    color: var(--white);
+    border: 1px solid rgba(157,127,240,0.3);
+    box-shadow: none;
+  }
+  .btn.ghost:hover { background: rgba(157,127,240,0.12); box-shadow: var(--shadow-glow); }
+  .btn.soft {
+    background: transparent; color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.15); box-shadow: none;
+  }
+  .btn.soft:hover { color: var(--white); border-color: rgba(157,127,240,0.3); }
+
+  /* ── Hero ───────────────────────────────────────────────── */
+  .hero {
+    padding: 72px 0 40px;
+    position: relative;
+    text-align: center;
+  }
+  .hero-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    line-height: 1.05;
+    margin: 0 0 20px;
+    font-weight: 800;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--glow) 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero .lede {
+    color: var(--muted); font-size: 1.15rem; max-width: 620px; margin: 0 auto 28px;
+  }
+  .hero-badges { margin: 10px 0 24px; }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .hero-trust {
+    display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+    margin-top: 26px; font-size: 13px; color: var(--muted);
+    justify-content: center;
+  }
+  .hero-trust span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* Hero visual: 3-panel canvas mockup (palette + emulator + inspector) */
+  .hero-visual {
+    position: relative;
+    max-width: 920px;
+    margin: 48px auto 0;
+    height: 360px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, #1a1d2e, #131624);
+    border: 1px solid rgba(157,127,240,0.30);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 80px rgba(157,127,240,0.18);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 130px 1fr 130px;
+    grid-template-rows: 32px 1fr 28px;
+    grid-template-areas:
+      "titlebar titlebar titlebar"
+      "palette canvas inspector"
+      "statusbar statusbar statusbar";
+  }
+  .hero-visual::before {
+    content: ''; position: absolute; inset: -1px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(157,127,240,0.5), rgba(74,47,138,0.2), transparent);
+    z-index: -1; filter: blur(20px); opacity: 0.5;
+  }
+  /* Title bar */
+  .hv-titlebar {
+    grid-area: titlebar;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 14px;
+    background: rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px; color: var(--muted);
+  }
+  .hv-titlebar .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .hv-titlebar .dot.r { background: #ff5f56; }
+  .hv-titlebar .dot.y { background: #ffbd2e; }
+  .hv-titlebar .dot.g { background: #27c93f; }
+  .hv-titlebar .label { margin-left: auto; color: var(--accent); font-weight: 600; }
+  /* Left palette */
+  .hv-palette {
+    grid-area: palette;
+    padding: 10px 8px;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    background: rgba(0,0,0,0.15);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 28px;
+    gap: 5px;
+    align-content: start;
+  }
+  .hv-palette .ph {
+    background: rgba(157,127,240,0.10);
+    border: 1px solid rgba(157,127,240,0.18);
+    border-radius: 5px;
+  }
+  .hv-palette .ph.hl {
+    background: rgba(157,127,240,0.22);
+    border-color: rgba(157,127,240,0.5);
+  }
+  /* Center canvas with dot grid + emulator */
+  .hv-canvas {
+    grid-area: canvas;
+    position: relative;
+    background:
+      repeating-linear-gradient(0deg, rgba(157,127,240,0.05) 0 1px, transparent 1px 16px),
+      repeating-linear-gradient(90deg, rgba(157,127,240,0.05) 0 1px, transparent 1px 16px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hv-canvas .emu {
+    width: 80px; height: 150px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #1a1d2e, #0f111c);
+    border: 1.5px solid rgba(157,127,240,0.45);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .hv-canvas .emu::before {
+    content: ''; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    width: 24px; height: 2.5px; border-radius: 2px; background: rgba(157,127,240,0.35);
+  }
+  .hv-canvas .emu-piece {
+    position: absolute; left: 50%; top: 28px; transform: translateX(-50%);
+    width: 64px; height: 22px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent), #d4c5f5);
+    box-shadow: 0 0 10px rgba(157,127,240,0.4);
+  }
+  /* Callout chips */
+  .hv-canvas .callout {
+    position: absolute;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), #f4a96b);
+    color: #1a1208; font-weight: 800; font-size: 10px;
+    display: grid; place-items: center;
+    box-shadow: 0 0 0 2px var(--bg), 0 0 10px rgba(232,149,94,0.5);
+  }
+  .hv-canvas .callout.c1 { top: 50px; left: 30%; }
+  .hv-canvas .callout.c2 { top: 130px; right: 30%; }
+  /* Right inspector */
+  .hv-inspector {
+    grid-area: inspector;
+    padding: 8px;
+    border-left: 1px solid rgba(255,255,255,0.05);
+    background: rgba(0,0,0,0.15);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .hv-inspector .sec {
+    height: 8px; border-radius: 2px;
+    background: rgba(157,127,240,0.18);
+    width: 80%;
+  }
+  .hv-inspector .sec.short { width: 50%; }
+  .hv-inspector .sec.bar {
+    width: 100%; height: 14px; border-radius: 4px;
+    background: rgba(157,127,240,0.12);
+  }
+  .hv-inspector .swatches {
+    display: flex; gap: 3px;
+  }
+  .hv-inspector .swatches span {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: rgba(157,127,240,0.15);
+  }
+  .hv-inspector .swatches span.on {
+    background: var(--accent);
+    box-shadow: 0 0 6px rgba(157,127,240,0.6);
+  }
+  /* Status bar */
+  .hv-statusbar {
+    grid-area: statusbar;
+    background: rgba(0,0,0,0.30);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px;
+    font-size: 10px; color: var(--muted);
+  }
+  .hv-statusbar .write {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(157,127,240,0.20);
+    color: var(--accent);
+    padding: 3px 9px; border-radius: 999px;
+    font-weight: 700;
+    border: 1px solid rgba(157,127,240,0.35);
+  }
+
+  /* Live pill (overlay) */
+  .hero-visual .live-pill {
+    position: absolute; top: 44px; right: 14px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(20,22,34,0.92); color: var(--green);
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 10px; font-weight: 700;
+    border: 1px solid rgba(74,222,128,0.35);
+    z-index: 3;
+    letter-spacing: 0.04em;
+  }
+  .live-pill .pulse {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 0 rgba(74,222,128,0.7);
+    animation: pulse 1.6s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+  }
+
+  /* ── Stats bar ──────────────────────────────────────────── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 40px 0 8px;
+  }
+  .stat {
+    text-align: center;
+    padding: 22px 16px;
+    background: linear-gradient(180deg, rgba(30,34,56,0.6), rgba(30,34,56,0.3));
+    border: 1px solid rgba(157,127,240,0.15);
+    border-radius: var(--radius);
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  .stat:hover { transform: translateY(-3px); border-color: rgba(157,127,240,0.35); }
+  .stat .n {
+    font-family: 'Fira Sans Condensed', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--cyan), var(--glow));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    line-height: 1;
+  }
+  .stat .l {
+    color: var(--muted); font-size: 13px; margin-top: 6px;
+  }
+
+  /* ── Cards / grids ──────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(157, 127, 240, 0.25);
+    border-radius: var(--radius);
+    padding: 22px;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card), var(--shadow-glow);
+    border-color: rgba(157, 127, 240, 0.5);
+  }
+  .card strong { font-size: 1.02rem; }
+  .card p { color: var(--muted); margin: 8px 0 0; font-size: 0.96rem; }
   .grid6 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 24px; }
-  .steps { counter-reset: step; list-style: none; padding: 0; }
-  .steps li { counter-increment: step; margin: 14px 0; padding-left: 44px; position: relative; }
+
+  /* ── Steps ──────────────────────────────────────────────── */
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 24px 0 0; }
+  .steps li {
+    counter-increment: step; margin: 14px 0; padding-left: 50px;
+    position: relative; min-height: 36px;
+  }
   .steps li::before {
-    content: counter(step); position: absolute; left: 0; top: -2px;
-    width: 30px; height: 30px; border-radius: 50%;
-    background: var(--primary); color: var(--white);
-    display: flex; align-items: center; justify-content: center; font-weight: 700;
+    content: counter(step); position: absolute; left: 0; top: 0;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--cyan));
+    color: #06131f;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-family: 'Fira Sans Condensed', sans-serif;
+    box-shadow: 0 0 14px rgba(157,127,240,0.35);
   }
+
+  /* ── Section heading ────────────────────────────────────── */
+  .section-head { margin-bottom: 8px; }
+  .section-head .eyebrow {
+    display: inline-block; color: var(--cyan); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .section-head h2 { font-size: clamp(1.7rem, 2.6vw, 2.2rem); margin: 0 0 8px; }
+  .section-head .desc { color: var(--muted); max-width: 700px; margin: 0; }
+
+  /* ── Pre / code ─────────────────────────────────────────── */
   pre {
-    background: #0c0e18; border: 1px solid rgba(94,206,245,.2); border-radius: 10px;
-    padding: 14px; overflow-x: auto; font-size: 13px;
+    background: #0c0e18;
+    border: 1px solid rgba(157,127,240,.2);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px; overflow-x: auto; font-size: 13px;
+    line-height: 1.55;
   }
-  .roadmap-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
-  .status { flex-shrink: 0; font-size: 13px; padding: 3px 10px; border-radius: 999px; }
-  .status.listo { background: rgba(94,206,245,.15); color: var(--cyan); }
+  pre code { color: var(--glow); }
+
+  /* ── Roadmap timeline ───────────────────────────────────── */
+  .timeline { position: relative; padding: 8px 0 8px 28px; margin-top: 16px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 8px; top: 12px; bottom: 12px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--cyan), var(--amber), rgba(255,255,255,0.15));
+    border-radius: 2px;
+  }
+  .timeline-item {
+    position: relative; margin: 16px 0; padding: 12px 16px;
+    background: rgba(30,34,56,0.5);
+    border: 1px solid rgba(157,127,240,0.12);
+    border-radius: var(--radius-sm);
+    transition: border-color .2s ease, transform .2s ease;
+  }
+  .timeline-item:hover { border-color: rgba(157,127,240,0.35); transform: translateX(2px); }
+  .timeline-item::before {
+    content: ''; position: absolute; left: -25px; top: 18px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bg);
+    border: 3px solid var(--cyan);
+    box-shadow: 0 0 0 4px var(--bg);
+  }
+  .timeline-item.done::before { background: var(--cyan); }
+  .timeline-item.next::before { border-color: var(--amber); background: var(--amber); }
+  .timeline-item.idea::before { border-color: var(--muted); background: var(--muted); }
+  .timeline-head { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 4px; }
+  .status { flex-shrink: 0; font-size: 12px; padding: 3px 10px; border-radius: 999px; font-weight: 600; }
+  .status.listo { background: rgba(157,127,240,.15); color: var(--cyan); }
   .status.siguiente { background: rgba(232,149,94,.15); color: var(--amber); }
   .status.idea { background: rgba(255,255,255,.08); color: var(--muted); }
-  .support-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
-  .support-links a { color: var(--cyan); text-decoration: none; border-bottom: 1px dotted var(--cyan); }
-  details { background: var(--surface); border-radius: 10px; padding: 10px 16px; margin: 8px 0; border: 1px solid rgba(255,255,255,.08); }
-  summary { cursor: pointer; font-weight: 600; }
-  footer { text-align: center; padding: 40px 0; color: var(--muted); font-size: 13px; }
-  .share { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
-  .share a { color: var(--white); background: var(--charcoal); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; }
-  .warn { border-left: 3px solid var(--amber); padding: 10px 14px; background: rgba(232,149,94,.08); border-radius: 0 8px 8px 0; font-size: 14px; }
+  .timeline-title { font-weight: 600; color: var(--white); }
+  .timeline-desc { color: var(--muted); font-size: 0.94rem; margin-top: 2px; }
+
+  /* ── Warning / tip boxes ────────────────────────────────── */
+  .warn { border-left: 3px solid var(--amber); padding: 12px 16px; background: rgba(232,149,94,.08); border-radius: 0 10px 10px 0; font-size: 14px; }
+  .tip { border-left: 3px solid var(--cyan); padding: 12px 16px; background: rgba(157,127,240,.08); border-radius: 0 10px 10px 0; font-size: 14px; }
+
+  /* ── Details / FAQ ──────────────────────────────────────── */
+  details { background: var(--surface); border-radius: var(--radius-sm); padding: 12px 18px; margin: 10px 0; border: 1px solid rgba(255,255,255,.08); transition: border-color .2s ease; }
+  details:hover { border-color: rgba(157,127,240,0.3); }
+  details[open] { background: var(--surface-2); border-color: rgba(157,127,240,0.25); }
+  summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+  summary::marker { color: var(--cyan); }
+
+  /* ── Support cards ──────────────────────────────────────── */
+  .support-card.featured {
+    border-color: var(--cyan);
+    background: linear-gradient(180deg, rgba(157,127,240,0.10), var(--surface));
+    position: relative;
+  }
+  .support-card.featured::after {
+    content: ''; position: absolute; inset: -1px;
+    border-radius: var(--radius);
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(157,127,240,0.4), transparent);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* ── Feature spotlight: Prompt listo para pegar ────────── */
+  .feature-spotlight {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 48px;
+    align-items: center;
+    margin-top: 24px;
+  }
+  .feature-spotlight .feature-text h2 {
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    margin: 8px 0 14px;
+  }
+  .feature-list { list-style: none; padding: 0; margin: 22px 0 0; }
+  .feature-list li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 8px 0; color: var(--muted); font-size: 0.98rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list li span:first-child { font-size: 1.1rem; line-height: 1.4; }
+
+  /* Prompt modal mockup */
+  .prompt-mock {
+    background: linear-gradient(180deg, #1f2138, #181a2c);
+    border: 1px solid rgba(157,127,240,0.30);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 50px rgba(157,127,240,0.15);
+    padding: 0;
+    overflow: hidden;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+  .prompt-mock .prompt-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .prompt-mock .prompt-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white; font-weight: 800; font-size: 16px;
+    display: grid; place-items: center;
+    box-shadow: 0 0 12px rgba(157,127,240,0.4);
+  }
+  .prompt-mock .prompt-head h3 { margin: 0; font-size: 1.05rem; }
+  .prompt-mock .prompt-body {
+    padding: 18px 20px;
+    font-size: 13.5px; line-height: 1.6;
+    color: var(--muted);
+    max-height: 320px; overflow-y: auto;
+  }
+  .prompt-mock .prompt-body p { margin: 0 0 12px; }
+  .prompt-mock .prompt-body p:last-child { margin-bottom: 0; }
+  .prompt-mock .prompt-body code {
+    background: rgba(157,127,240,0.10);
+    border: 1px solid rgba(157,127,240,0.20);
+    padding: 1px 6px; border-radius: 4px;
+    color: var(--accent);
+    font-size: 12px;
+  }
+  .prompt-mock .prompt-body code.path { font-size: 11.5px; }
+  .prompt-mock .prompt-body .warn-inline {
+    background: rgba(232,149,94,0.10);
+    border-left: 3px solid var(--amber);
+    padding: 8px 12px; border-radius: 0 6px 6px 0;
+    color: rgba(253,253,253,0.85);
+  }
+  .prompt-mock .prompt-body strong { color: var(--white); }
+  .prompt-mock .prompt-foot {
+    display: flex; gap: 10px; justify-content: flex-end;
+    padding: 14px 20px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    background: rgba(0,0,0,0.15);
+  }
+  .btn-soft {
+    color: var(--muted); padding: 8px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+  }
+  .btn-mini {
+    padding: 8px 16px; font-size: 13px; border-radius: 999px;
+  }
+
+  @media (max-width: 900px) {
+    .feature-spotlight { grid-template-columns: 1fr; gap: 32px; }
+    .prompt-mock { max-width: 100%; }
+  }
+
+  /* ── Personal note tabs ─────────────────────────────────── */
+  .note-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 16px; }
+  .note-card { background: var(--surface); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius-sm); padding: 14px 18px; }
+  .note-card .flag { font-size: 1.4rem; margin-right: 8px; }
+  .note-card summary { font-weight: 600; }
+  .note-card p { color: var(--muted); font-size: 0.95rem; margin: 10px 0 0; }
+
+  /* ── Language switcher ──────────────────────────────────── */
   .lang-switch { display: flex; gap: 6px; }
   .lang-switch button {
-    background: transparent; border: 1px solid rgba(94,206,245,.35); color: var(--muted);
+    background: transparent; border: 1px solid rgba(157,127,240,.35); color: var(--muted);
     padding: 5px 12px; border-radius: 999px; font-size: 13px; cursor: pointer;
+    font-family: inherit; transition: all .2s ease;
   }
-  .lang-switch button.active { background: rgba(94,206,245,.15); color: var(--cyan); border-color: var(--cyan); }
+  .lang-switch button:hover { color: var(--white); }
+  .lang-switch button.active { background: rgba(157,127,240,.15); color: var(--cyan); border-color: var(--cyan); }
+
+  /* ── Share / footer ─────────────────────────────────────── */
+  footer { text-align: center; padding: 48px 0 36px; color: var(--muted); font-size: 13px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 40px; }
+  .share { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+  .share a { color: var(--white); background: var(--charcoal); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; transition: all .2s ease; border: 1px solid rgba(255,255,255,0.06); }
+  .share a:hover { background: rgba(157,127,240,0.12); border-color: rgba(157,127,240,0.3); transform: translateY(-1px); }
+  .support-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; justify-content: center; }
+  .support-links a { color: var(--cyan); text-decoration: none; border-bottom: 1px dotted var(--cyan); }
+  .support-links a:hover { color: var(--glow); }
+
   [data-i18n][hidden] { display: none; }
 
+  /* ── Community banner ───────────────────────────────────── */
   #community-banner {
     position: fixed; right: 16px; bottom: 16px; z-index: 40;
     max-width: 340px;
     background: rgba(30, 34, 56, 0.97);
-    border: 1px solid rgba(94, 206, 245, 0.3);
+    border: 1px solid rgba(157, 127, 240, 0.3);
     border-radius: 16px;
     padding: 16px 18px;
     box-shadow: 0 12px 30px rgba(0,0,0,.4);
@@ -116,12 +644,135 @@
     display: inline-block; font-size: 11px; font-weight: 700; text-decoration: none;
     background: var(--primary); color: var(--white); padding: 6px 14px; border-radius: 999px;
   }
+  #community-banner .banner-cta:hover { background: var(--cyan); color: #06131f; }
+
+  /* ── Scroll-reveal (progressive enhancement) ──────────────
+     Default: visible. JS adds `js-reveal` to <html> to opt-in to the
+     animation, so no-JS / screenshot tools / reduced-motion users
+     always see the content. */
+  .reveal { transition: opacity .7s ease, transform .7s ease; }
+  html.js-reveal .reveal { opacity: 0; transform: translateY(18px); }
+  html.js-reveal .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: .08s; }
+  .reveal.delay-2 { transition-delay: .16s; }
+  .reveal.delay-3 { transition-delay: .24s; }
+  .reveal.delay-4 { transition-delay: .32s; }
+
+  /* ── CTA strip ──────────────────────────────────────────── */
+  .cta-strip {
+    margin: 32px 0 0;
+    padding: 36px 32px;
+    background: linear-gradient(135deg, rgba(74,47,138,0.25), rgba(157,127,240,0.10));
+    border: 1px solid rgba(157,127,240,0.25);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-strip::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(600px 200px at 50% 100%, rgba(157,127,240,0.20), transparent);
+    pointer-events: none;
+  }
+  .cta-strip h3 { font-size: 1.5rem; margin: 0 0 8px; }
+  .cta-strip p { color: var(--muted); margin: 0 0 18px; }
+
+  /* ── Real product showcase ─────────────────────────────── */
+  .product-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+    align-items: stretch;
+  }
+  .product-shot {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid rgba(157,127,240,0.20);
+    background: #141622;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .product-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .product-shot .shot-label {
+    position: absolute; top: 12px; left: 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(20,22,34,0.85);
+    backdrop-filter: blur(8px);
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px; font-weight: 700;
+    border: 1px solid rgba(157,127,240,0.30);
+    color: var(--accent);
+  }
+  .product-shot .shot-label .dot-live {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.6s ease-out infinite;
+  }
+  .product-caption {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    text-align: center;
+  }
+  .product-caption strong { color: var(--white); }
+
+  @media (max-width: 720px) {
+    .product-showcase { grid-template-columns: 1fr; }
+  }
+
+  /* ── Mobile ─────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .hero { padding: 48px 0 32px; }
+    .hero-visual { height: 260px; max-width: 720px; grid-template-columns: 90px 1fr 90px; }
+    .hv-palette { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .nav-links { display: none; }
+    section { padding: 48px 0; }
+  }
+  @media (max-width: 520px) {
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .stat { padding: 16px 8px; }
+    .hero-trust { gap: 10px; }
+    .hero-visual { height: 200px; grid-template-columns: 70px 1fr 70px; }
+  }
+
+  /* ── Reduced motion ─────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
 </style>
 </head>
 <body>
 
-<!-- 1. Header con badges de estado y plataformas / status & platform badges -->
-<header class="wrap" style="padding-top:32px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+<!-- ── Sticky top nav ────────────────────────────────────── -->
+<nav class="nav" aria-label="Principal">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark">A</span>
+      ApliArte Widget Canvas
+    </a>
+    <div class="nav-links">
+      <a href="#features"><span data-i18n="es">Funciones</span><span data-i18n="en" hidden>Features</span></a>
+      <a href="#how"><span data-i18n="es">Cómo funciona</span><span data-i18n="en" hidden>How it works</span></a>
+      <a href="#install"><span data-i18n="es">Instalar</span><span data-i18n="en" hidden>Install</span></a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#support"><span data-i18n="es">Apoyar</span><span data-i18n="en" hidden>Support</span></a>
+    </div>
+    <a class="nav-cta" href="./index.html">
+      <span data-i18n="es">Probar en vivo →</span><span data-i18n="en" hidden>Try live →</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ── 1. Header strip with badges ───────────────────────── -->
+<header id="top" class="wrap" style="padding-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
   <div>
     <span class="badge">🌐 Web</span>
     <span class="badge">🍎 macOS</span>
@@ -130,8 +781,8 @@
     <span class="badge">📸 Capa sobre App Real</span>
     <span class="badge">✨ IA Groq</span>
     <span class="badge">🎨 Material 3</span>
-    <span class="badge amber" data-i18n="es">🆓 Gratis</span>
-    <span class="badge amber" data-i18n="en" hidden>🆓 Free</span>
+    <span class="badge green" data-i18n="es">🆓 Gratis</span>
+    <span class="badge green" data-i18n="en" hidden>🆓 Free</span>
     <span class="badge amber" data-i18n="es">🚫 Sin publicidad</span>
     <span class="badge amber" data-i18n="en" hidden>🚫 No ads</span>
     <span class="badge amber" data-i18n="es">🔒 100% local</span>
@@ -143,71 +794,197 @@
   </div>
 </header>
 
-<!-- 2. Hero -->
-<section class="wrap">
-  <div data-i18n="es">
-    <h1 style="font-size:2.4em; margin-bottom:8px;">Bocetea, anota y diseña sobre tu app Flutter real.</h1>
-    <p style="color:var(--muted); font-size:1.15em; max-width:680px;">
-      ApliArte Widget Canvas abre tu proyecto Flutter real, proyecta capturas en el marco del emulador,
-      te permite marcar pasos con Callouts numerados, flechas y cajas de rediseño, editar con la suite
-      completa Material 3 y generar código con IA o prompts quirúrgicos — 100% en tu máquina.
-    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;">
-      <a class="btn" href="./index.html">🎨 Probar Canvas Web en Vivo →</a>
-      <a class="btn" style="background:rgba(255,255,255,0.08); color:var(--white); box-shadow:none; border:1px solid rgba(94,206,245,0.3);" href="https://github.com/erbolamm/apliarte-widget-canvas" target="_blank" rel="noreferrer">⭐ Repositorio GitHub</a>
-      <a class="btn" style="background:transparent; color:var(--muted); box-shadow:none; border:1px solid rgba(255,255,255,0.15);" href="#descargas">Instalar local →</a>
+<!-- ── 2. Hero ───────────────────────────────────────────── -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-inner">
+      <div data-i18n="es" class="reveal">
+        <h1>Bocetea, anota y diseña <span class="grad">sobre tu app Flutter real</span>.</h1>
+        <p class="lede">
+          ApliArte Widget Canvas abre tu proyecto Flutter real, proyecta capturas en el marco del emulador,
+          te permite marcar pasos con Callouts numerados, flechas y cajas de rediseño, editar con la suite
+          completa Material 3 y generar código con IA o prompts quirúrgicos — 100% en tu máquina.
+        </p>
+        <div class="hero-cta">
+          <a class="btn" href="./index.html">🎨 Probar Canvas Web en Vivo</a>
+          <a class="btn ghost" href="https://github.com/erbolamm/apliarte-widget-canvas" target="_blank" rel="noreferrer">⭐ Repositorio GitHub</a>
+          <a class="btn soft" href="#install"><span>Instalar local</span> →</a>
+        </div>
+        <div class="hero-trust">
+          <span>✅ Sin registro</span>
+          <span>🔒 Sin tracking</span>
+          <span>🧪 MIT License</span>
+          <span>⚡ Setup en 5 min</span>
+        </div>
+      </div>
+      <div data-i18n="en" hidden class="reveal">
+        <h1>Sketch, annotate and design <span class="grad">directly over your real Flutter app</span>.</h1>
+        <p class="lede">
+          ApliArte Widget Canvas opens your real Flutter project, projects actual app screenshots inside the emulator frame,
+          lets you annotate steps with numbered Callouts, arrows, and redesign boxes, edit with the full Material 3 suite,
+          and generate code with AI or surgical prompts — 100% on your machine.
+        </p>
+        <div class="hero-cta">
+          <a class="btn" href="./index.html">🎨 Try Live Web Canvas</a>
+          <a class="btn ghost" href="https://github.com/erbolamm/apliarte-widget-canvas" target="_blank" rel="noreferrer">⭐ GitHub Repo</a>
+          <a class="btn soft" href="#install"><span>Install local</span> →</a>
+        </div>
+        <div class="hero-trust">
+          <span>✅ No signup</span>
+          <span>🔒 No tracking</span>
+          <span>🧪 MIT License</span>
+          <span>⚡ 5-min setup</span>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal delay-2" aria-hidden="true">
+        <div class="hv-titlebar">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="label">ApliArte Widget Canvas</span>
+        </div>
+        <div class="hv-palette">
+          <div class="ph"></div><div class="ph"></div>
+          <div class="ph hl"></div><div class="ph"></div>
+          <div class="ph"></div><div class="ph"></div>
+          <div class="ph"></div><div class="ph hl"></div>
+          <div class="ph"></div><div class="ph"></div>
+          <div class="ph"></div><div class="ph"></div>
+          <div class="ph hl"></div><div class="ph"></div>
+        </div>
+        <div class="hv-canvas">
+          <div class="emu">
+            <div class="emu-piece"></div>
+          </div>
+          <div class="callout c1">1</div>
+          <div class="callout c2">2</div>
+        </div>
+        <div class="hv-inspector">
+          <div class="sec"></div>
+          <div class="sec short"></div>
+          <div class="bar"></div>
+          <div class="swatches">
+            <span></span><span></span><span></span><span class="on"></span><span></span><span></span>
+          </div>
+          <div class="bar"></div>
+        </div>
+        <div class="hv-statusbar">
+          <span>100%</span>
+          <span class="write">✦ Write with AI</span>
+        </div>
+        <div class="live-pill">
+          <span class="pulse"></span>
+          <span data-i18n="es">Canvas en vivo</span><span data-i18n="en" hidden>Live canvas</span>
+        </div>
+      </div>
     </div>
-  </div>
-  <div data-i18n="en" hidden>
-    <h1 style="font-size:2.4em; margin-bottom:8px;">Sketch, annotate and design directly over your real Flutter app.</h1>
-    <p style="color:var(--muted); font-size:1.15em; max-width:680px;">
-      ApliArte Widget Canvas opens your real Flutter project, projects actual app screenshots inside the emulator frame,
-      lets you annotate steps with numbered Callouts, arrows, and redesign boxes, edit with the full Material 3 suite,
-      and generate code with AI or surgical prompts — 100% on your machine.
+
+    <!-- Stats bar -->
+    <div class="stats">
+      <div class="stat reveal"><div class="n">46+</div><div class="l" data-i18n="es">Widgets Material 3</div><div class="l" data-i18n="en" hidden>Material 3 widgets</div></div>
+      <div class="stat reveal delay-1"><div class="n">0</div><div class="l" data-i18n="es">Anuncios · trackers</div><div class="l" data-i18n="en" hidden>Ads · trackers</div></div>
+      <div class="stat reveal delay-2"><div class="n">8</div><div class="l" data-i18n="es">Fases publicadas</div><div class="l" data-i18n="en" hidden>Shipped phases</div></div>
+      <div class="stat reveal delay-3"><div class="n">100%</div><div class="l" data-i18n="es">En tu máquina</div><div class="l" data-i18n="en" hidden>On your machine</div></div>
+    </div>
+
+    <!-- Real product showcase: side-by-side light + dark theme of the real canvas -->
+    <div class="product-showcase">
+      <figure class="product-shot reveal">
+        <span class="shot-label"><span class="dot-live"></span><span data-i18n="es">Tema oscuro · v1.0</span><span data-i18n="en" hidden>Dark theme · v1.0</span></span>
+        <img src="./assets/canvas-dark.png" alt="ApliArte Widget Canvas — tema oscuro" loading="lazy">
+      </figure>
+      <figure class="product-shot reveal delay-1">
+        <span class="shot-label"><span class="dot-live"></span><span data-i18n="es">Tema claro · v1.0</span><span data-i18n="en" hidden>Light theme · v1.0</span></span>
+        <img src="./assets/canvas-light.png" alt="ApliArte Widget Canvas — tema claro" loading="lazy">
+      </figure>
+    </div>
+    <p class="product-caption reveal">
+      <strong data-i18n="es">Esto es el canvas real,</strong> <span data-i18n="es">no un mockup. Capturas de la build actual — tema oscuro y claro con la paleta completa de 46+ widgets Material 3 oficiales.</span>
+      <strong data-i18n="en" hidden>This is the real canvas,</strong><span data-i18n="en" hidden>not a mockup. Shots of the current build — dark and light theme with the full palette of 46+ official Material 3 widgets.</span>
     </p>
-    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;">
-      <a class="btn" href="./index.html">🎨 Try Live Web Canvas →</a>
-      <a class="btn" style="background:rgba(255,255,255,0.08); color:var(--white); box-shadow:none; border:1px solid rgba(94,206,245,0.3);" href="https://github.com/erbolamm/apliarte-widget-canvas" target="_blank" rel="noreferrer">⭐ GitHub Repo</a>
-      <a class="btn" style="background:transparent; color:var(--muted); box-shadow:none; border:1px solid rgba(255,255,255,0.15);" href="#descargas">Install local →</a>
+  </div>
+</section>
+
+<!-- ── 3. Grid de 9 beneficios técnicos ─────────────────── -->
+<section class="wrap" id="features">
+  <div class="section-head reveal">
+    <span class="eyebrow"><span data-i18n="es">Funciones</span><span data-i18n="en" hidden>Features</span></span>
+    <div data-i18n="es">
+      <h2>Ingeniería real, no humo</h2>
+      <p class="desc">Lo que hace, en concreto. Sin claims vacíos: cada tarjeta es una capacidad que ya funciona en v1.</p>
+    </div>
+    <div data-i18n="en" hidden>
+      <h2>Real engineering, no marketing fluff</h2>
+      <p class="desc">What it does, concretely. No empty claims: each card is a capability that already works in v1.</p>
+    </div>
+  </div>
+
+  <div class="grid6">
+    <div class="card reveal"><strong>📸 Capa sobre Captura Real</strong><p>Carga capturas reales en el emulador con opacidad ajustable. Diseña sobre la UI real sin pelear con BLoCs, GetIt o audio nativo.</p></div>
+    <div class="card reveal delay-1"><strong>🔢 Anotaciones Técnicas</strong><p>Callouts numerados (<code class="mono">①, ②, ③</code>), flechas indicadoras, cajas de rediseño y reglas de medición en píxeles.</p></div>
+    <div class="card reveal delay-2"><strong>🎨 Suite Completa Material 3</strong><p>46+ widgets oficiales de Flutter (Buttons, Cards, Chips, ListTiles, NavBars, Sliders...) renderizados con widgets reales.</p></div>
+    <div class="card reveal delay-3"><strong>⚡ Inspector Lateral M3</strong><p>Edita en vivo textos, colores HEX, bordes, anchos, acciones táctiles y catálogo de iconos oficial con búsqueda.</p></div>
+    <div class="card reveal"><strong>🤖 Motor de IA con Groq</strong><p>Generación ultra-rápida de código Flutter nativo con <code class="mono">llama-3.3-70b-versatile</code> o multi-proveedor (OpenAI, Claude, Gemini).</p></div>
+    <div class="card reveal delay-1"><strong>🌳 Análisis AST real</strong><p>Usa <code class="mono">package:analyzer</code> de Dart para leer tu código de verdad — sin necesitar compilar ni <code class="mono">pub get</code>.</p></div>
+    <div class="card reveal delay-2"><strong>↩️ Historial Ilimitado</strong><p>Soporte nativo para <code class="mono">Cmd+Z / Ctrl+Z</code> (Deshacer) y <code class="mono">⇧Cmd+Z / Ctrl+Y</code> (Rehacer) en cada movimiento visual.</p></div>
+    <div class="card reveal delay-3"><strong>📋 Export de prompt</strong><p>Genera instrucciones estructuradas por pasos numerados listas para pegar en Claude Code, Codex, Antigravity o Copilot.</p></div>
+    <div class="card reveal"><strong>🔒 Privacidad local</strong><p>Tu código nunca sale de tu máquina. El servidor local solo escucha en <code class="mono">localhost</code>, nunca en la red.</p></div>
+  </div>
+</section>
+
+<!-- ── 3.5 Feature spotlight: Prompt listo para pegar ──── -->
+<section class="wrap" id="prompt-export">
+  <div class="feature-spotlight">
+    <div class="feature-text reveal">
+      <span class="eyebrow"><span data-i18n="es">Feature estrella</span><span data-i18n="en" hidden>Star feature</span></span>
+      <h2 data-i18n="es">Un prompt listo para pegar. Cero magia.</h2>
+      <h2 data-i18n="en" hidden>A prompt ready to paste. Zero magic.</h2>
+      <p data-i18n="es" style="color:var(--muted); max-width:520px;">Cuando terminas de bocetar, ApliArte Widget Canvas genera instrucciones estructuradas — clase, ruta del archivo, orden de los widgets, y qué partes son nuevas — listas para que las pegues en Claude Code, Codex, Antigravity o Copilot. Tu agente de código aplica los cambios al código real. Sin reinterpretar, sin asumir.</p>
+      <p data-i18n="en" hidden style="color:var(--muted); max-width:520px;">When you finish sketching, ApliArte Widget Canvas generates structured instructions — class, file path, widget order, and which parts are new — ready to paste into Claude Code, Codex, Antigravity, or Copilot. Your coding agent applies the changes to the real code. No reinterpreting, no assuming.</p>
+      <ul class="feature-list">
+        <li><span>🎯</span> <span data-i18n="es">Orden visual preservado, no píxeles absolutos</span><span data-i18n="en" hidden>Visual order preserved, not absolute pixels</span></li>
+        <li><span>📂</span> <span data-i18n="es">Incluye ruta exacta del archivo .dart</span><span data-i18n="en" hidden>Includes exact .dart file path</span></li>
+        <li><span>🆕</span> <span data-i18n="es">Marca qué widgets hay que CREAR vs REORDENAR</span><span data-i18n="en" hidden>Marks widgets to CREATE vs REORDER</span></li>
+        <li><span>📋</span> <span data-i18n="es">Un clic para copiar al portapapeles</span><span data-i18n="en" hidden>One-click copy to clipboard</span></li>
+      </ul>
+    </div>
+
+    <div class="prompt-mock reveal delay-1" aria-hidden="true">
+      <div class="prompt-head">
+        <div class="prompt-icon">✦</div>
+        <h3 data-i18n="es">Prompt listo para pegar</h3>
+        <h3 data-i18n="en" hidden>Prompt ready to paste</h3>
+      </div>
+      <div class="prompt-body">
+        <p>Quiero ajustar la disposición visual de la interfaz.</p>
+        <p>Clase: <code>BotFaceScreen</code> (archivo: <code class="path">/lib/ui/bot_face_screen.dart</code>).</p>
+        <p>El siguiente orden de arriba a abajo / izquierda a derecha es el que quiero para los elementos visuales, según cómo los reorganicé en un boceto visual. <strong>No es una posición en píxeles exacta</strong> — adapta el orden usando el sistema de layout de Flutter que ya usa este archivo (Row/Column/Scaffold/etc.), no fuerces posiciones absolutas.</p>
+        <p>- Pantalla (widget propio del proyecto)<br>- TextField (NUEVO — no existe en el código, hay que crearlo) [radioBorde: 5px]</p>
+        <p>Widgets propios que sí revisé y quiero que apliques también los cambios de orden dentro de ellos: <strong>Pantalla</strong>.</p>
+        <p class="warn-inline">Importante: los widgets marcados (NUEVO) arriba NO existen en el código todavía — hay que CREARLOS, no reordenarlos. Son: <strong>TextField</strong>.</p>
+      </div>
+      <div class="prompt-foot">
+        <span class="btn-soft" data-i18n="es">Cerrar</span><span class="btn-soft" data-i18n="en" hidden>Close</span>
+        <span class="btn btn-mini">📋 <span data-i18n="es">Copiar</span><span data-i18n="en" hidden>Copy</span></span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- 3. Grid de 9 beneficios técnicos -->
-<section class="wrap">
-  <div data-i18n="es">
-    <h2>Ingeniería real, no humo</h2>
-    <div class="grid6">
-      <div class="card"><strong>📸 Capa sobre Captura Real</strong><p style="color:var(--muted); margin:8px 0 0;">Carga capturas reales en el emulador con opacidad ajustable. Diseña sobre la UI real sin pelear con BLoCs, GetIt o audio nativo.</p></div>
-      <div class="card"><strong>🔢 Anotaciones Técnicas</strong><p style="color:var(--muted); margin:8px 0 0;">Callouts numerados (<code class="mono">①, ②, ③</code>), flechas indicadoras, cajas de rediseño y reglas de medición en píxeles.</p></div>
-      <div class="card"><strong>🎨 Suite Completa Material 3</strong><p style="color:var(--muted); margin:8px 0 0;">46+ widgets oficiales de Flutter (Buttons, Cards, Chips, ListTiles, NavBars, Sliders...) renderizados con widgets reales.</p></div>
-      <div class="card"><strong>⚡ Inspector Lateral M3</strong><p style="color:var(--muted); margin:8px 0 0;">Edita en vivo textos, colores HEX, bordes, anchos, acciones táctiles y catálogo de iconos oficial con búsqueda.</p></div>
-      <div class="card"><strong>🤖 Motor de IA con Groq</strong><p style="color:var(--muted); margin:8px 0 0;">Generación ultra-rápida de código Flutter nativo con <code class="mono">llama-3.3-70b-versatile</code> o multi-proveedor (OpenAI, Claude, Gemini).</p></div>
-      <div class="card"><strong>🌳 Análisis AST real</strong><p style="color:var(--muted); margin:8px 0 0;">Usa <code class="mono">package:analyzer</code> de Dart para leer tu código de verdad — sin necesitar compilar ni <code class="mono">pub get</code>.</p></div>
-      <div class="card"><strong>↩️ Historial Ilimitado</strong><p style="color:var(--muted); margin:8px 0 0;">Soporte nativo para <code class="mono">Cmd+Z / Ctrl+Z</code> (Deshacer) y <code class="mono">⇧Cmd+Z / Ctrl+Y</code> (Rehacer) en cada movimiento visual.</p></div>
-      <div class="card"><strong>📋 Export de prompt</strong><p style="color:var(--muted); margin:8px 0 0;">Genera instrucciones estructuradas por pasos numerados listas para pegar en Claude Code, Codex, Antigravity o Copilot.</p></div>
-      <div class="card"><strong>🔒 Privacidad local</strong><p style="color:var(--muted); margin:8px 0 0;">Tu código nunca sale de tu máquina. El servidor local solo escucha en <code class="mono">localhost</code>, nunca en la red.</p></div>
+<!-- ── 4. Cómo funciona + Mini FAQ ──────────────────────── -->
+<section class="wrap" id="how">
+  <div class="section-head reveal">
+    <span class="eyebrow"><span data-i18n="es">Flujo</span><span data-i18n="en" hidden>Workflow</span></span>
+    <div data-i18n="es">
+      <h2>Cómo funciona</h2>
+      <p class="desc">Seis pasos, sin sorpresas. Cada uno con una salida concreta que puedes revisar.</p>
+    </div>
+    <div data-i18n="en" hidden>
+      <h2>How it works</h2>
+      <p class="desc">Six steps, no surprises. Each one has a concrete output you can review.</p>
     </div>
   </div>
-  <div data-i18n="en" hidden>
-    <h2>Real engineering, no marketing fluff</h2>
-    <div class="grid6">
-      <div class="card"><strong>📸 Real Screenshot Layer</strong><p style="color:var(--muted); margin:8px 0 0;">Load real app screenshots inside the emulator frame with adjustable opacity. Design on top without fighting BLoCs, GetIt, or native audio.</p></div>
-      <div class="card"><strong>🔢 Technical Annotations</strong><p style="color:var(--muted); margin:8px 0 0;">Numbered Callouts (<code class="mono">①, ②, ③</code>), directional arrows, redesign bounding boxes, and pixel measurement rulers.</p></div>
-      <div class="card"><strong>🎨 Complete Material 3 Suite</strong><p style="color:var(--muted); margin:8px 0 0;">46+ official Flutter widgets (Buttons, Cards, Chips, ListTiles, NavBars, Sliders...) rendered with actual Flutter widgets.</p></div>
-      <div class="card"><strong>⚡ M3 Side Inspector</strong><p style="color:var(--muted); margin:8px 0 0;">Live editing for texts, HEX colors, border radii, widths, tap actions, and searchable official Material icon picker.</p></div>
-      <div class="card"><strong>🤖 AI Engine with Groq</strong><p style="color:var(--muted); margin:8px 0 0;">Ultra-fast native Flutter code generation with <code class="mono">llama-3.3-70b-versatile</code> or multi-provider (OpenAI, Claude, Gemini).</p></div>
-      <div class="card"><strong>🌳 Real AST analysis</strong><p style="color:var(--muted); margin:8px 0 0;">Uses Dart's <code class="mono">package:analyzer</code> to read your actual code — no compilation or <code class="mono">pub get</code> needed.</p></div>
-      <div class="card"><strong>↩️ Unlimited History</strong><p style="color:var(--muted); margin:8px 0 0;">Native support for <code class="mono">Cmd+Z / Ctrl+Z</code> (Undo) and <code class="mono">⇧Cmd+Z / Ctrl+Y</code> (Redo) for every visual edit.</p></div>
-      <div class="card"><strong>📋 Prompt export</strong><p style="color:var(--muted); margin:8px 0 0;">Generates step-by-step numbered instructions ready to paste into Claude Code, Codex, Antigravity, or Copilot.</p></div>
-      <div class="card"><strong>🔒 Local privacy</strong><p style="color:var(--muted); margin:8px 0 0;">Your code never leaves your machine. The server only listens on <code class="mono">localhost</code>, never on the network.</p></div>
-    </div>
-  </div>
-</section>
 
-<!-- 4. Cómo funciona + Mini FAQ -->
-<section class="wrap">
-  <div data-i18n="es">
-    <h2>Cómo funciona</h2>
+  <div data-i18n="es" class="reveal">
     <ol class="steps">
       <li>Arranca el servidor local (<code class="mono">dart run bin/servidor.dart</code>) y abre el canvas web.</li>
       <li>Selecciona tu proyecto y archivo desde el explorador inteligente (escaneo AST automático).</li>
@@ -216,14 +993,8 @@
       <li>Personaliza en el Inspector lateral: textos, colores, bordes, iconos y comportamiento.</li>
       <li>Exporta el prompt quirúrgico o genera el código directamente con el motor de IA integrado (Groq).</li>
     </ol>
-    <h3 style="margin-top:32px;">Preguntas rápidas</h3>
-    <details><summary>¿Qué es el modo de edición sobre captura real?</summary><p style="color:var(--muted);">Te permite usar una captura de tu aplicación real en ejecución como fondo dentro del marco del emulador (Móvil V, H o Web), con opacidad ajustable. Así puedes diseñar y anotar cambios visuales directamente sobre la vista real sin lidiar con BLoCs, GetIt o audio nativo que no compilarían en un navegador aislado.</p></details>
-    <details><summary>¿Sube mi código a algún servidor externo?</summary><p style="color:var(--muted);">No. Todo el análisis AST, el servidor local y el canvas corren en tu propia máquina en <code class="mono">127.0.0.1</code>. Si usas el motor de IA, este solo consulta la API del proveedor que tú elijas (como Groq u OpenAI) con tu propia clave.</p></details>
-    <details><summary>¿Reemplaza a Flutter DevTools?</summary><p style="color:var(--muted);">No, son complementarios. DevTools inspecciona y perfila una app en ejecución; ApliArte Widget Canvas bocetea y documenta cambios visuales quirúrgicos antes de tocar código.</p></details>
-    <details><summary>¿Funciona con cualquier proyecto Flutter?</summary><p style="color:var(--muted);">Con cualquiera que tenga estructura estándar <code class="mono">lib/</code> y <code class="mono">pubspec.yaml</code>. Probado contra CalcaApp (7M+ descargas) y proyectos avanzados con Clean Architecture.</p></details>
   </div>
-  <div data-i18n="en" hidden>
-    <h2>How it works</h2>
+  <div data-i18n="en" hidden class="reveal">
     <ol class="steps">
       <li>Start the local server (<code class="mono">dart run bin/servidor.dart</code>) and open the web canvas.</li>
       <li>Select your project and file from the smart explorer (automatic AST scanning).</li>
@@ -232,241 +1003,297 @@
       <li>Customize in the Side Inspector: texts, colors, borders, icons, and behavior notes.</li>
       <li>Export the surgical prompt or generate code directly with the integrated AI engine (Groq).</li>
     </ol>
-    <h3 style="margin-top:32px;">Quick questions</h3>
-    <details><summary>What is real screenshot editing mode?</summary><p style="color:var(--muted);">It lets you place a real screenshot of your running app as the background of the emulator frame (Mobile V, H, or Web) with adjustable opacity. You can design and annotate visual changes directly over the real UI without dealing with BLoCs, GetIt, or native audio that cannot compile in an isolated browser.</p></details>
-    <details><summary>Does it upload my code to any external server?</summary><p style="color:var(--muted);">No. All AST analysis, the local server, and the canvas run on your own machine at <code class="mono">127.0.0.1</code>. If you use the AI engine, it only queries your chosen provider API (such as Groq or OpenAI) using your own key.</p></details>
-    <details><summary>Does it replace Flutter DevTools?</summary><p style="color:var(--muted);">No, they're complementary. DevTools inspects and profiles a running app; ApliArte Widget Canvas sketches and documents surgical visual changes before writing code.</p></details>
-    <details><summary>Does it work with any Flutter project?</summary><p style="color:var(--muted);">With any project having a standard <code class="mono">lib/</code> and <code class="mono">pubspec.yaml</code> structure. Tested against CalcaApp (7M+ downloads) and advanced Clean Architecture projects.</p></details>
+  </div>
+
+  <h3 style="margin-top:40px;" class="reveal"><span data-i18n="es">Preguntas rápidas</span><span data-i18n="en" hidden>Quick questions</span></h3>
+  <div class="reveal">
+    <details><summary><span data-i18n="es">¿Qué es el modo de edición sobre captura real?</span><span data-i18n="en" hidden>What is real screenshot editing mode?</span></summary><p style="color:var(--muted);"><span data-i18n="es">Te permite usar una captura de tu aplicación real en ejecución como fondo dentro del marco del emulador (Móvil V, H o Web), con opacidad ajustable. Así puedes diseñar y anotar cambios visuales directamente sobre la vista real sin lidiar con BLoCs, GetIt o audio nativo que no compilarían en un navegador aislado.</span><span data-i18n="en" hidden>It lets you place a real screenshot of your running app as the background of the emulator frame (Mobile V, H, or Web) with adjustable opacity. You can design and annotate visual changes directly over the real UI without dealing with BLoCs, GetIt, or native audio that cannot compile in an isolated browser.</span></p></details>
+    <details><summary><span data-i18n="es">¿Sube mi código a algún servidor externo?</span><span data-i18n="en" hidden>Does it upload my code to any external server?</span></summary><p style="color:var(--muted);"><span data-i18n="es">No. Todo el análisis AST, el servidor local y el canvas corren en tu propia máquina en <code class="mono">127.0.0.1</code>. Si usas el motor de IA, este solo consulta la API del proveedor que tú elijas (como Groq u OpenAI) con tu propia clave.</span><span data-i18n="en" hidden>No. All AST analysis, the local server, and the canvas run on your own machine at <code class="mono">127.0.0.1</code>. If you use the AI engine, it only queries your chosen provider API (such as Groq or OpenAI) using your own key.</span></p></details>
+    <details><summary><span data-i18n="es">¿Reemplaza a Flutter DevTools?</span><span data-i18n="en" hidden>Does it replace Flutter DevTools?</span></summary><p style="color:var(--muted);"><span data-i18n="es">No, son complementarios. DevTools inspecciona y perfila una app en ejecución; ApliArte Widget Canvas bocetea y documenta cambios visuales quirúrgicos antes de tocar código.</span><span data-i18n="en" hidden>No, they're complementary. DevTools inspects and profiles a running app; ApliArte Widget Canvas sketches and documents surgical visual changes before writing code.</span></p></details>
+    <details><summary><span data-i18n="es">¿Funciona con cualquier proyecto Flutter?</span><span data-i18n="en" hidden>Does it work with any Flutter project?</span></summary><p style="color:var(--muted);"><span data-i18n="es">Con cualquiera que tenga estructura estándar <code class="mono">lib/</code> y <code class="mono">pubspec.yaml</code>. Probado contra CalcaApp (7M+ descargas) y proyectos avanzados con Clean Architecture.</span><span data-i18n="en" hidden>With any project having a standard <code class="mono">lib/</code> and <code class="mono">pubspec.yaml</code> structure. Tested against CalcaApp (7M+ downloads) and advanced Clean Architecture projects.</span></p></details>
   </div>
 </section>
 
-<!-- 5. Descargas -->
-<section class="wrap" id="descargas">
-  <div data-i18n="es">
-    <h2>Empezar ahora</h2>
-    <div class="warn">⚠️ Primera versión: se ejecuta desde el código fuente, todavía no hay instalador de un clic. Honesto por delante de bonito.</div>
+<!-- ── 5. Instalación ───────────────────────────────────── -->
+<section class="wrap" id="install">
+  <div class="section-head reveal">
+    <span class="eyebrow"><span data-i18n="es">Instalación</span><span data-i18n="en" hidden>Install</span></span>
+    <div data-i18n="es">
+      <h2>Empezar ahora</h2>
+      <p class="desc">Cinco minutos desde cero. Lo único que necesitas ya instalado es Git y un terminal.</p>
+    </div>
+    <div data-i18n="en" hidden>
+      <h2>Get started now</h2>
+      <p class="desc">Five minutes from scratch. The only prerequisites are Git and a terminal.</p>
+    </div>
+  </div>
 
-    <h3 style="margin-top:28px; font-size:1.05em;">Antes: ¿tienes <code class="mono">fvm</code>?</h3>
-    <p style="color:var(--muted); font-size:13px; max-width:600px;">
-      Este proyecto necesita Flutter 3.47.2 exacto, por eso los comandos llevan el prefijo
-      <code class="mono">fvm</code>. Es una herramienta para tener varias versiones de Flutter
-      instaladas sin que se pisen entre proyectos.
+  <div class="reveal" style="margin-top:16px;">
+    <div class="warn">⚠️ <span data-i18n="es"><strong>Primera versión:</strong> se ejecuta desde el código fuente, todavía no hay instalador de un clic. Honesto por delante de bonito.</span><span data-i18n="en" hidden><strong>First version:</strong> runs from source, no one-click installer yet. Honest before pretty.</span></div>
+  </div>
+
+  <h3 style="margin-top:32px; font-size:1.05em;" class="reveal"><span data-i18n="es">Antes: ¿tienes</span><span data-i18n="en" hidden>First: do you have</span> <code class="mono">fvm</code><span data-i18n="es">?</span><span data-i18n="en" hidden>?</span></h3>
+  <div class="reveal">
+    <p style="color:var(--muted); font-size:14px; max-width:600px;">
+      <span data-i18n="es">Este proyecto necesita Flutter 3.47.2 exacto, por eso los comandos llevan el prefijo <code class="mono">fvm</code>. Es una herramienta para tener varias versiones de Flutter instaladas sin que se pisen entre proyectos.</span><span data-i18n="en" hidden>This project needs Flutter 3.47.2 exactly, that's why the commands are prefixed with <code class="mono">fvm</code>. It's a tool for keeping several Flutter versions installed without them clashing between projects.</span>
     </p>
     <pre class="mono">fvm --version</pre>
-    <p style="color:var(--muted); font-size:13px;">¿Da versión? Ya lo tienes, sigue abajo. ¿"command not found"?</p>
+    <p style="color:var(--muted); font-size:14px;"><span data-i18n="es">¿Da versión? Ya lo tienes, sigue abajo. ¿"command not found"?</span><span data-i18n="en" hidden>Got a version back? You're set, skip below. "command not found"?</span></p>
     <pre class="mono"># macOS
 brew install fvm
 
 # Cualquier sistema con Dart/Flutter instalado
-dart pub global activate fvm</pre>
-    <p style="color:var(--muted); font-size:12px;">Más opciones: <a href="https://fvm.app/documentation/getting-started/installation" target="_blank" rel="noreferrer" style="color:var(--cyan);">fvm.app/documentation/getting-started/installation</a></p>
-
-    <h3 style="margin-top:28px; font-size:1.05em;">Ahora sí, a probarlo</h3>
-    <pre class="mono"># Clona el repo
-git clone https://github.com/erbolamm/apliarte-widget-canvas.git
-
-# Terminal 1 — servidor local
-cd apliarte-widget-canvas/servidor
-dart run bin/servidor.dart
-
-# Terminal 2 (nueva) — canvas
-cd apliarte-widget-canvas/canvas
-fvm flutter run -d chrome</pre>
-    <p style="color:var(--muted); font-size:12px; margin-top:8px;">⚠️ Cada bloque asume una terminal nueva desde la raíz del repo. "Address already in use" en el servidor: ya tienes uno corriendo de antes — <code class="mono">lsof -i :8799</code> + <code class="mono">kill</code>, o simplemente úsalo.</p>
-    <p style="color:var(--muted); font-size:13px; margin-top:12px;">Con las dos terminales corriendo, ya no necesitas escribir rutas a mano: el canvas incluye un <strong>Explorador Inteligente</strong> que escanea automáticamente todas las pantallas y widgets de tu proyecto. Eliges tu pantalla con un clic, o cargas una captura de tu app real en el emulador para empezar a diseñar y anotar inmediatamente.</p>
-  </div>
-  <div data-i18n="en" hidden>
-    <h2>Get started now</h2>
-    <div class="warn">⚠️ First version: runs from source, no one-click installer yet. Honest before pretty.</div>
-
-    <h3 style="margin-top:28px; font-size:1.05em;">First: do you have <code class="mono">fvm</code>?</h3>
-    <p style="color:var(--muted); font-size:13px; max-width:600px;">
-      This project needs Flutter 3.47.2 exactly, that's why the commands are prefixed with
-      <code class="mono">fvm</code>. It's a tool for keeping several Flutter versions installed
-      without them clashing between projects.
-    </p>
-    <pre class="mono">fvm --version</pre>
-    <p style="color:var(--muted); font-size:13px;">Got a version back? You're set, skip below. "command not found"?</p>
-    <pre class="mono"># macOS
-brew install fvm
-
 # Any system with Dart/Flutter already installed
 dart pub global activate fvm</pre>
-    <p style="color:var(--muted); font-size:12px;">More options: <a href="https://fvm.app/documentation/getting-started/installation" target="_blank" rel="noreferrer" style="color:var(--cyan);">fvm.app/documentation/getting-started/installation</a></p>
+    <p style="color:var(--muted); font-size:12px;"><span data-i18n="es">Más opciones:</span><span data-i18n="en" hidden>More options:</span> <a href="https://fvm.app/documentation/getting-started/installation" target="_blank" rel="noreferrer">fvm.app/documentation/getting-started/installation</a></p>
+  </div>
 
-    <h3 style="margin-top:28px; font-size:1.05em;">Now, try it</h3>
-    <pre class="mono"># Clone the repo
+  <h3 style="margin-top:32px; font-size:1.05em;" class="reveal"><span data-i18n="es">Ahora sí, a probarlo</span><span data-i18n="en" hidden>Now, try it</span></h3>
+  <div class="reveal">
+    <pre class="mono"># Clona el repo / Clone the repo
 git clone https://github.com/erbolamm/apliarte-widget-canvas.git
 
-# Terminal 1 — local server
+# Terminal 1 — servidor local / local server
 cd apliarte-widget-canvas/servidor
 dart run bin/servidor.dart
 
-# Terminal 2 (new) — canvas
+# Terminal 2 (nueva / new) — canvas
 cd apliarte-widget-canvas/canvas
 fvm flutter run -d chrome</pre>
-    <p style="color:var(--muted); font-size:12px; margin-top:8px;">⚠️ Each block assumes a new terminal from the repo root. "Address already in use" on the server means one is already running — <code class="mono">lsof -i :8799</code> + <code class="mono">kill</code>, or just use it.</p>
-    <p style="color:var(--muted); font-size:13px; margin-top:12px;">With both terminals running, you don't even need to type paths by hand: the canvas includes a <strong>Smart Project Explorer</strong> that automatically scans all screens and widgets in your project. Pick your screen in one click, or load a screenshot of your real app into the emulator frame to start designing and annotating immediately.</p>
+    <p style="color:var(--muted); font-size:12px; margin-top:8px;">⚠️ <span data-i18n="es">Cada bloque asume una terminal nueva desde la raíz del repo. "Address already in use" en el servidor: ya tienes uno corriendo de antes — <code class="mono">lsof -i :8799</code> + <code class="mono">kill</code>, o simplemente úsalo.</span><span data-i18n="en" hidden>Each block assumes a new terminal from the repo root. "Address already in use" on the server means one is already running — <code class="mono">lsof -i :8799</code> + <code class="mono">kill</code>, or just use it.</span></p>
+    <p style="color:var(--muted); font-size:14px; margin-top:14px;"><span data-i18n="es">Con las dos terminales corriendo, ya no necesitas escribir rutas a mano: el canvas incluye un <strong>Explorador Inteligente</strong> que escanea automáticamente todas las pantallas y widgets de tu proyecto. Eliges tu pantalla con un clic, o cargas una captura de tu app real en el emulador para empezar a diseñar y anotar inmediatamente.</span><span data-i18n="en" hidden>With both terminals running, you don't even need to type paths by hand: the canvas includes a <strong>Smart Project Explorer</strong> that automatically scans all screens and widgets in your project. Pick your screen in one click, or load a screenshot of your real app into the emulator frame to start designing and annotating immediately.</span></p>
   </div>
 </section>
 
-<!-- 6. Apoyo comunitario (siguiendo el estandar Paso 3.14 de INBOX.md: hero + realidad vs humo + 3 niveles + otros canales) -->
-<section class="wrap" id="apoyar">
-  <div data-i18n="es">
-    <h2>El conocimiento es libre. El tiempo es valioso.</h2>
-    <p style="color:var(--muted); max-width:640px;">
-      Yo pongo las horas de código abierto; tú te llevas la herramienta lista para usar. Si te ahorra
-      tiempo de verdad, apoyar ayuda a que siga mantenido. Quien apoya hoy es un early adopter — habrá
-      reconocimiento y descuentos futuros si salen planes pro. Sin letra pequeña, de buena fe.
-    </p>
-    <div class="warn" style="max-width:640px; margin-top:16px;">
-      💡 <strong>Realidad vs Humo:</strong> hay consultoras cobrando miles de euros por herramientas
-      similares. Esta es gratis y de código abierto. Si te hace ganar tiempo o dinero, ¡invita un café!
+<!-- ── 6. Apoyo comunitario ─────────────────────────────── -->
+<section class="wrap" id="support">
+  <div class="section-head reveal">
+    <span class="eyebrow"><span data-i18n="es">Apoyar</span><span data-i18n="en" hidden>Support</span></span>
+    <div data-i18n="es">
+      <h2>El conocimiento es libre. El tiempo es valioso.</h2>
+      <p class="desc">Yo pongo las horas de código abierto; tú te llevas la herramienta lista para usar. Si te ahorra tiempo de verdad, apoyar ayuda a que siga mantenido.</p>
+    </div>
+    <div data-i18n="en" hidden>
+      <h2>Knowledge is free. Time is valuable.</h2>
+      <p class="desc">I put in the open-source hours; you get a tool that's ready to use. If it genuinely saves you time, supporting it helps keep it maintained.</p>
     </div>
   </div>
-  <div data-i18n="en" hidden>
-    <h2>Knowledge is free. Time is valuable.</h2>
-    <p style="color:var(--muted); max-width:640px;">
-      I put in the open-source hours; you get a tool that's ready to use. If it genuinely saves you
-      time, supporting it helps keep it maintained. Anyone who supports today is an early adopter —
-      there will be recognition and future discounts if pro plans launch. No fine print, good faith.
+
+  <div class="reveal" style="margin-top:18px;">
+    <p style="color:var(--muted); max-width:680px;">
+      <span data-i18n="es">Quien apoya hoy es un early adopter — habrá reconocimiento y descuentos futuros si salen planes pro. Sin letra pequeña, de buena fe.</span><span data-i18n="en" hidden>Anyone who supports today is an early adopter — there will be recognition and future discounts if pro plans launch. No fine print, good faith.</span>
     </p>
-    <div class="warn" style="max-width:640px; margin-top:16px;">
-      💡 <strong>Reality vs hype:</strong> some consultancies charge thousands of euros for similar
-      tooling. This one is free and open source. If it saves you time or money, buy me a coffee!
+    <div class="tip" style="max-width:680px; margin-top:14px;">
+      💡 <strong><span data-i18n="es">Realidad vs Humo:</span><span data-i18n="en" hidden>Reality vs hype:</span></strong> <span data-i18n="es">hay consultoras cobrando miles de euros por herramientas similares. Esta es gratis y de código abierto. Si te hace ganar tiempo o dinero, ¡invita un café!</span><span data-i18n="en" hidden">some consultancies charge thousands of euros for similar tooling. This one is free and open source. If it saves you time or money, buy me a coffee!</span>
     </div>
   </div>
 
   <div class="grid6" style="margin-top:28px;">
-    <div class="card" data-i18n="es">
-      <div style="font-size:1.8em;">☕</div>
-      <strong>Café</strong>
-      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Un gesto puntual, lo que cuesta un café.</p>
-      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://ko-fi.com/C0C11TWR1K" target="_blank" rel="noreferrer">Invitar un café</a>
-    </div>
-    <div class="card" data-i18n="en" hidden>
-      <div style="font-size:1.8em;">☕</div>
-      <strong>Coffee</strong>
-      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">A one-off gesture, the cost of a coffee.</p>
-      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://ko-fi.com/C0C11TWR1K" target="_blank" rel="noreferrer">Buy a coffee</a>
+    <div class="card support-card reveal">
+      <div style="font-size:2rem;">☕</div>
+      <strong style="display:block; margin-top:6px;" data-i18n="es">Café</strong>
+      <strong style="display:block; margin-top:6px;" data-i18n="en" hidden>Coffee</strong>
+      <p style="color:var(--muted); font-size:13.5px; margin:6px 0 14px;" data-i18n="es">Un gesto puntual, lo que cuesta un café.</p>
+      <p style="color:var(--muted); font-size:13.5px; margin:6px 0 14px;" data-i18n="en" hidden>A one-off gesture, the cost of a coffee.</p>
+      <a class="btn" style="font-size:13px; padding:9px 16px;" href="https://ko-fi.com/C0C11TWR1K" target="_blank" rel="noreferrer"><span data-i18n="es">Invitar un café</span><span data-i18n="en" hidden>Buy a coffee</span></a>
     </div>
 
-    <div class="card" data-i18n="es" style="border-color:var(--cyan);">
-      <span class="badge">Recomendado · Comunidad</span>
-      <div style="font-size:1.8em; margin-top:8px;">💙</div>
-      <strong>Co-Creador</strong>
-      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Apoyo recurrente. Ayuda a decidir qué se construye después.</p>
-      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer">Ser Co-Creador</a>
-    </div>
-    <div class="card" data-i18n="en" hidden style="border-color:var(--cyan);">
-      <span class="badge">Recommended · Community</span>
-      <div style="font-size:1.8em; margin-top:8px;">💙</div>
-      <strong>Co-Creator</strong>
-      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Recurring support. Helps decide what gets built next.</p>
-      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer">Become a Co-Creator</a>
+    <div class="card support-card featured reveal delay-1">
+      <span class="badge" data-i18n="es">Recomendado · Comunidad</span>
+      <span class="badge" data-i18n="en" hidden>Recommended · Community</span>
+      <div style="font-size:2rem; margin-top:6px;">💙</div>
+      <strong style="display:block;" data-i18n="es">Co-Creador</strong>
+      <strong style="display:block;" data-i18n="en" hidden>Co-Creator</strong>
+      <p style="color:var(--muted); font-size:13.5px; margin:6px 0 14px;" data-i18n="es">Apoyo recurrente. Ayuda a decidir qué se construye después.</p>
+      <p style="color:var(--muted); font-size:13.5px; margin:6px 0 14px;" data-i18n="en" hidden>Recurring support. Helps decide what gets built next.</p>
+      <a class="btn" style="font-size:13px; padding:9px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer"><span data-i18n="es">Ser Co-Creador</span><span data-i18n="en" hidden>Become a Co-Creator</span></a>
     </div>
 
-    <div class="card" data-i18n="es">
-      <div style="font-size:1.8em;">🌟</div>
-      <strong>Mecenas Fundador</strong>
-      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Reconocimiento permanente: tu nombre queda en el README oficial.</p>
-      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer">Ser Mecenas</a>
-    </div>
-    <div class="card" data-i18n="en" hidden>
-      <div style="font-size:1.8em;">🌟</div>
-      <strong>Founding Patron</strong>
-      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Permanent recognition: your name stays in the official README.</p>
-      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer">Become a Patron</a>
+    <div class="card support-card reveal delay-2">
+      <div style="font-size:2rem;">🌟</div>
+      <strong style="display:block; margin-top:6px;" data-i18n="es">Mecenas Fundador</strong>
+      <strong style="display:block; margin-top:6px;" data-i18n="en" hidden>Founding Patron</strong>
+      <p style="color:var(--muted); font-size:13.5px; margin:6px 0 14px;" data-i18n="es">Reconocimiento permanente: tu nombre queda en el README oficial.</p>
+      <p style="color:var(--muted); font-size:13.5px; margin:6px 0 14px;" data-i18n="en" hidden>Permanent recognition: your name stays in the official README.</p>
+      <a class="btn" style="font-size:13px; padding:9px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer"><span data-i18n="es">Ser Mecenas</span><span data-i18n="en" hidden>Become a Patron</span></a>
     </div>
   </div>
 
-  <p data-i18n="es" style="color:var(--muted); font-size:13px; margin-top:20px;">Los botones enlazan directo a Ko-fi/PayPal — no hay pasarela de pago propia todavía, así que no fingimos una.</p>
-  <p data-i18n="en" hidden style="color:var(--muted); font-size:13px; margin-top:20px;">Buttons link straight to Ko-fi/PayPal — there's no custom payment flow yet, so we don't fake one.</p>
+  <p data-i18n="es" style="color:var(--muted); font-size:13px; margin-top:18px;" class="reveal">Los botones enlazan directo a Ko-fi/PayPal — no hay pasarela de pago propia todavía, así que no fingimos una.</p>
+  <p data-i18n="en" hidden style="color:var(--muted); font-size:13px; margin-top:18px;" class="reveal">Buttons link straight to Ko-fi/PayPal — there's no custom payment flow yet, so we don't fake one.</p>
 
-  <div class="support-links">
+  <div class="support-links reveal">
     <a href="https://github.com/erbolamm/apliarte-widget-canvas" target="_blank" rel="noreferrer">⭐ <span data-i18n="es">Estrella en GitHub</span><span data-i18n="en" hidden>Star on GitHub</span></a>
     <a href="https://twitch.tv/apliarte" target="_blank" rel="noreferrer">🎥 Twitch</a>
     <a href="https://streamelements.com/apliarte/tip" target="_blank" rel="noreferrer">💝 Tips</a>
   </div>
 </section>
 
-<!-- 7. Roadmap por fases + hoja de bonificaciones por estrellas -->
-<section class="wrap">
-  <div data-i18n="es">
-    <h2>Roadmap</h2>
-    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 0 — Extractor: lee una clase real y clasifica sus widgets por AST.</span></div>
-    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 1 — Canvas visual interactivo: arrastra y reordena piezas con dot matrix.</span></div>
-    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 2 — Servidor local + expansión recursiva de widgets propios.</span></div>
-    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 3 — Export de prompt quirúrgico con pasos numerados para agentes de código.</span></div>
-    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 4 — Capa visual sobre app real: captura de emulador/dispositivo, Callouts numerados, flechas y reglas.</span></div>
-    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 5 — Suite completa Material 3 (46+ widgets), selector de iconos e Inspector lateral M3.</span></div>
-    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 6 — Motor de IA con Groq (Llama-3.3-70b) y multi-proveedor integrado.</span></div>
-    <div class="roadmap-item"><span class="status siguiente">Siguiente 🟡</span><span>Fase 7 — Instalador de escritorio empaquetado de un clic (macOS / Windows / Linux).</span></div>
-    <div class="roadmap-item"><span class="status idea">Idea 💡</span><span>Fase 8 — Login con GitHub: lee repos remotos sin servidor local.</span></div>
-    <h3 style="margin-top:32px;">⭐ Hoja de bonificaciones por estrellas</h3>
-    <p style="color:var(--muted);">Cada hito de estrellas en GitHub desbloquea la siguiente versión documentada:</p>
-    <div class="grid6" style="margin-top:12px;">
-      <div class="card">⭐ 100 → v2 documentada</div>
-      <div class="card">⭐ 500 → v3 documentada</div>
-      <div class="card">⭐ 1000+ → siguientes versiones, mismo criterio</div>
+<!-- ── 7. Roadmap (timeline) ────────────────────────────── -->
+<section class="wrap" id="roadmap">
+  <div class="section-head reveal">
+    <span class="eyebrow">Roadmap</span>
+    <div data-i18n="es">
+      <h2>Hoja de ruta pública</h2>
+      <p class="desc">Lo que ya está hecho, lo que viene y lo que está en el tintero. Sin promesas vacías, cada fase tiene salida verificable.</p>
+    </div>
+    <div data-i18n="en" hidden>
+      <h2>Public roadmap</h2>
+      <p class="desc">What's done, what's next, and what's in the back of the drawer. No empty promises — each phase has verifiable output.</p>
     </div>
   </div>
-  <div data-i18n="en" hidden>
-    <h2>Roadmap</h2>
-    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 0 — Extractor: reads a real class and classifies its widgets via AST.</span></div>
-    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 1 — Interactive visual canvas: drag and reorder pieces with dot matrix.</span></div>
-    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 2 — Local server + recursive expansion of your own widgets.</span></div>
-    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 3 — Surgical prompt export with numbered steps for coding agents.</span></div>
-    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 4 — Real App Overlay: emulator/device screenshots, numbered Callouts, arrows & rulers.</span></div>
-    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 5 — Full Material 3 suite (46+ widgets), icon picker & M3 Side Inspector.</span></div>
-    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 6 — Integrated AI engine with Groq (Llama-3.3-70b) and multi-provider support.</span></div>
-    <div class="roadmap-item"><span class="status siguiente">Next 🟡</span><span>Phase 7 — Packaged one-click desktop installer (macOS / Windows / Linux).</span></div>
-    <div class="roadmap-item"><span class="status idea">Idea 💡</span><span>Phase 8 — GitHub login: read remote repos without a local server.</span></div>
-    <h3 style="margin-top:32px;">⭐ Star bonus roadmap</h3>
-    <p style="color:var(--muted);">Every GitHub star milestone unlocks the next documented version:</p>
-    <div class="grid6" style="margin-top:12px;">
-      <div class="card">⭐ 100 → documented v2</div>
-      <div class="card">⭐ 500 → documented v3</div>
-      <div class="card">⭐ 1000+ → next versions, same rule</div>
+
+  <div data-i18n="es" class="timeline">
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Listo ✅</span><span class="timeline-title">Fase 0 — Extractor</span></div>
+      <div class="timeline-desc">Lee una clase real y clasifica sus widgets por AST.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Listo ✅</span><span class="timeline-title">Fase 1 — Canvas visual interactivo</span></div>
+      <div class="timeline-desc">Arrastra y reordena piezas con dot matrix.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Listo ✅</span><span class="timeline-title">Fase 2 — Servidor local</span></div>
+      <div class="timeline-desc">Expansión recursiva de widgets propios.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Listo ✅</span><span class="timeline-title">Fase 3 — Export de prompt quirúrgico</span></div>
+      <div class="timeline-desc">Pasos numerados listos para agentes de código.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Listo ✅</span><span class="timeline-title">Fase 4 — Capa sobre app real</span></div>
+      <div class="timeline-desc">Captura de emulador/dispositivo, Callouts numerados, flechas y reglas.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Listo ✅</span><span class="timeline-title">Fase 5 — Suite Material 3</span></div>
+      <div class="timeline-desc">46+ widgets, selector de iconos e Inspector lateral M3.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Listo ✅</span><span class="timeline-title">Fase 6 — Motor de IA con Groq</span></div>
+      <div class="timeline-desc">Llama-3.3-70b y multi-proveedor integrado.</div>
+    </div>
+    <div class="timeline-item next reveal">
+      <div class="timeline-head"><span class="status siguiente">Siguiente 🟡</span><span class="timeline-title">Fase 7 — Instalador de escritorio</span></div>
+      <div class="timeline-desc">Empaquetado de un clic (macOS / Windows / Linux).</div>
+    </div>
+    <div class="timeline-item idea reveal">
+      <div class="timeline-head"><span class="status idea">Idea 💡</span><span class="timeline-title">Fase 8 — Login con GitHub</span></div>
+      <div class="timeline-desc">Lee repos remotos sin servidor local.</div>
+    </div>
+  </div>
+
+  <div data-i18n="en" hidden class="timeline">
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Done ✅</span><span class="timeline-title">Phase 0 — Extractor</span></div>
+      <div class="timeline-desc">Reads a real class and classifies its widgets via AST.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Done ✅</span><span class="timeline-title">Phase 1 — Interactive visual canvas</span></div>
+      <div class="timeline-desc">Drag and reorder pieces with dot matrix.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Done ✅</span><span class="timeline-title">Phase 2 — Local server</span></div>
+      <div class="timeline-desc">Recursive expansion of your own widgets.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Done ✅</span><span class="timeline-title">Phase 3 — Surgical prompt export</span></div>
+      <div class="timeline-desc">Numbered steps ready for coding agents.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Done ✅</span><span class="timeline-title">Phase 4 — Real App Overlay</span></div>
+      <div class="timeline-desc">Emulator/device screenshots, numbered Callouts, arrows & rulers.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Done ✅</span><span class="timeline-title">Phase 5 — Material 3 suite</span></div>
+      <div class="timeline-desc">46+ widgets, icon picker & M3 Side Inspector.</div>
+    </div>
+    <div class="timeline-item done reveal">
+      <div class="timeline-head"><span class="status listo">Done ✅</span><span class="timeline-title">Phase 6 — AI engine with Groq</span></div>
+      <div class="timeline-desc">Llama-3.3-70b and multi-provider support.</div>
+    </div>
+    <div class="timeline-item next reveal">
+      <div class="timeline-head"><span class="status siguiente">Next 🟡</span><span class="timeline-title">Phase 7 — Desktop installer</span></div>
+      <div class="timeline-desc">Packaged one-click installer (macOS / Windows / Linux).</div>
+    </div>
+    <div class="timeline-item idea reveal">
+      <div class="timeline-head"><span class="status idea">Idea 💡</span><span class="timeline-title">Phase 8 — GitHub login</span></div>
+      <div class="timeline-desc">Read remote repos without a local server.</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:36px;" class="reveal">⭐ <span data-i18n="es">Hoja de bonificaciones por estrellas</span><span data-i18n="en" hidden>Star bonus roadmap</span></h3>
+  <p data-i18n="es" style="color:var(--muted);" class="reveal">Cada hito de estrellas en GitHub desbloquea la siguiente versión documentada:</p>
+  <p data-i18n="en" hidden style="color:var(--muted);" class="reveal">Every GitHub star milestone unlocks the next documented version:</p>
+  <div class="grid6" style="margin-top:12px;">
+    <div class="card reveal" style="text-align:center;"><div style="font-size:1.6rem;">⭐ 100</div><div style="color:var(--muted); margin-top:4px;" data-i18n="es">→ v2 documentada</div><div style="color:var(--muted); margin-top:4px;" data-i18n="en" hidden>→ documented v2</div></div>
+    <div class="card reveal delay-1" style="text-align:center;"><div style="font-size:1.6rem;">⭐ 500</div><div style="color:var(--muted); margin-top:4px;" data-i18n="es">→ v3 documentada</div><div style="color:var(--muted); margin-top:4px;" data-i18n="en" hidden>→ documented v3</div></div>
+    <div class="card reveal delay-2" style="text-align:center;"><div style="font-size:1.6rem;">⭐ 1000+</div><div style="color:var(--muted); margin-top:4px;" data-i18n="es">→ siguientes versiones</div><div style="color:var(--muted); margin-top:4px;" data-i18n="en" hidden>→ next versions</div></div>
+  </div>
+</section>
+
+<!-- ── 8. Planes futuros ────────────────────────────────── -->
+<section class="wrap">
+  <div class="section-head reveal">
+    <span class="eyebrow"><span data-i18n="es">Planes</span><span data-i18n="en" hidden>Plans</span></span>
+    <div data-i18n="es">
+      <h2>Planes futuros (transparentes)</h2>
+      <p class="desc">Sin pagos por ahora. Hoy todo es gratis. Lo enseñamos por transparencia, no para vender nada todavía.</p>
+    </div>
+    <div data-i18n="en" hidden>
+      <h2>Future plans (transparent)</h2>
+      <p class="desc">No payments for now. Everything is free today. We're showing this for transparency, not to sell anything yet.</p>
+    </div>
+  </div>
+  <div class="grid6" style="margin-top:16px;">
+    <div class="card reveal" style="text-align:center;">
+      <strong style="font-size:1.1rem;">Start</strong>
+      <p data-i18n="es">Próximamente / No disponible</p>
+      <p data-i18n="en" hidden>Coming soon / Not available</p>
+    </div>
+    <div class="card reveal delay-1" style="text-align:center;">
+      <strong style="font-size:1.1rem;">Pro</strong>
+      <p data-i18n="es">Próximamente / No disponible</p>
+      <p data-i18n="en" hidden>Coming soon / Not available</p>
+    </div>
+    <div class="card reveal delay-2" style="text-align:center;">
+      <strong style="font-size:1.1rem;">Vitalicio</strong>
+      <p data-i18n="es">Próximamente / No disponible</p>
+      <p data-i18n="en" hidden>Coming soon / Not available</p>
     </div>
   </div>
 </section>
 
-<!-- 8. Planes futuros -->
+<!-- ── 9. Nota personal del autor (6 idiomas, siempre visible) ── -->
 <section class="wrap">
-  <div data-i18n="es">
-    <h2>Planes futuros (transparentes)</h2>
-    <div class="warn">⚠️ Sin pagos por ahora. Hoy todo es gratis. Los enseñamos por transparencia, no para vender nada todavía.</div>
-    <div class="grid6" style="margin-top:16px;">
-      <div class="card"><strong>Start</strong><p style="color:var(--muted);">Próximamente / No disponible</p></div>
-      <div class="card"><strong>Pro</strong><p style="color:var(--muted);">Próximamente / No disponible</p></div>
-      <div class="card"><strong>Vitalicio</strong><p style="color:var(--muted);">Próximamente / No disponible</p></div>
-    </div>
+  <div class="section-head reveal">
+    <span class="eyebrow"><span data-i18n="es">Nota personal</span><span data-i18n="en" hidden>Personal note</span></span>
+    <h2><span data-i18n="es">Una nota personal</span><span data-i18n="en" hidden>A personal note</span></h2>
+    <p data-i18n="es" style="color:var(--amber); font-size:13px;">⚠️ Borrador — pendiente de que Javier lo revise/reescriba con su propia voz antes de publicar.</p>
+    <p data-i18n="en" hidden style="color:var(--amber); font-size:13px;">⚠️ Draft — pending Javier's own review before publishing.</p>
   </div>
-  <div data-i18n="en" hidden>
-    <h2>Future plans (transparent)</h2>
-    <div class="warn">⚠️ No payments for now. Everything is free today. We're showing this for transparency, not to sell anything yet.</div>
-    <div class="grid6" style="margin-top:16px;">
-      <div class="card"><strong>Start</strong><p style="color:var(--muted);">Coming soon / Not available</p></div>
-      <div class="card"><strong>Pro</strong><p style="color:var(--muted);">Coming soon / Not available</p></div>
-      <div class="card"><strong>Lifetime</strong><p style="color:var(--muted);">Coming soon / Not available</p></div>
-    </div>
+
+  <div class="note-grid">
+    <details class="note-card reveal" open><summary><span class="flag">🇪🇸</span>Español</summary><p>Hice este proyecto porque me cansé de que las herramientas de diseño visual para Flutter no lean tu código real — o parten de cero, o no entienden qué widgets ya construiste tú. Esto sí lo hace: abre tu proyecto de verdad, y te deja bocetar cambios sobre lo que ya existe. Es gratis y open source porque a mí me hubiera gustado tenerlo cuando empecé, sin estudios ni saber inglés, aprendiendo Flutter solo.</p></details>
+    <details class="note-card reveal delay-1"><summary><span class="flag">🇬🇧</span>English</summary><p>I built this because I got tired of visual design tools for Flutter that don't read your real code — they either start from a blank canvas or have no idea what widgets you've already built. This one does: it opens your actual project and lets you sketch changes on top of what's already there. It's free and open source because I wish I'd had it when I started, self-taught, with no formal education.</p></details>
+    <details class="note-card reveal delay-2"><summary><span class="flag">🇧🇷</span>Português</summary><p>Criei este projeto porque me cansei de ferramentas de design visual para Flutter que não leem seu código real — ou partem do zero, ou não entendem quais widgets você já construiu. Esta lê: abre seu projeto de verdade e permite esboçar mudanças sobre o que já existe. É gratuito e open source porque eu gostaria de tê-la quando comecei, autodidata, sem formação formal.</p></details>
+    <details class="note-card reveal delay-3"><summary><span class="flag">🇫🇷</span>Français</summary><p>J'ai créé ce projet parce que j'en avais assez des outils de design visuel pour Flutter qui ne lisent pas votre vrai code — ils partent d'une toile vierge ou ignorent les widgets que vous avez déjà construits. Celui-ci les lit vraiment : il ouvre votre projet réel et vous laisse esquisser des changements sur l'existant. Il est gratuit et open source parce que j'aurais aimé l'avoir à mes débuts, autodidacte, sans formation officielle.</p></details>
+    <details class="note-card reveal delay-4"><summary><span class="flag">🇩🇪</span>Deutsch</summary><p>Ich habe dieses Projekt gebaut, weil ich es leid war, dass visuelle Design-Tools für Flutter deinen echten Code nicht lesen — sie starten entweder bei null oder wissen nicht, welche Widgets du bereits gebaut hast. Dieses hier liest ihn wirklich: es öffnet dein echtes Projekt und lässt dich Änderungen über das Bestehende skizzieren. Es ist kostenlos und Open Source, weil ich es mir zu Beginn gewünscht hätte, als Autodidakt ohne formale Ausbildung.</p></details>
+    <details class="note-card reveal"><summary><span class="flag">🇮🇹</span>Italiano</summary><p>Ho creato questo progetto perché ero stanco degli strumenti di design visivo per Flutter che non leggono il tuo codice reale — o partono da zero, o non capiscono quali widget hai già costruito. Questo li legge davvero: apre il tuo progetto reale e ti lascia abbozzare modifiche su ciò che già esiste. È gratuito e open source perché avrei voluto averlo quando ho iniziato, autodidatta, senza formazione formale.</p></details>
   </div>
 </section>
 
-<!-- 9. Nota personal del autor (siempre visible en los 6 idiomas, independiente del selector ES/EN) -->
-<section class="wrap">
-  <h2>Una nota personal / A personal note</h2>
-  <p style="color:var(--muted); font-size:13px;">⚠️ Borrador — pendiente de que Javier lo revise/reescriba con su propia voz antes de publicar. / Draft — pending Javier's own review before publishing.</p>
-  <details open><summary>🇪🇸 Español</summary><p>Hice este proyecto porque me cansé de que las herramientas de diseño visual para Flutter no lean tu código real — o parten de cero, o no entienden qué widgets ya construiste tú. Esto sí lo hace: abre tu proyecto de verdad, y te deja bocetar cambios sobre lo que ya existe. Es gratis y open source porque a mí me hubiera gustado tenerlo cuando empecé, sin estudios ni saber inglés, aprendiendo Flutter solo.</p></details>
-  <details><summary>🇬🇧 English</summary><p>I built this because I got tired of visual design tools for Flutter that don't read your real code — they either start from a blank canvas or have no idea what widgets you've already built. This one does: it opens your actual project and lets you sketch changes on top of what's already there. It's free and open source because I wish I'd had it when I started, self-taught, with no formal education.</p></details>
-  <details><summary>🇧🇷 Português</summary><p>Criei este projeto porque me cansei de ferramentas de design visual para Flutter que não leem seu código real — ou partem do zero, ou não entendem quais widgets você já construiu. Esta lê: abre seu projeto de verdade e permite esboçar mudanças sobre o que já existe. É gratuito e open source porque eu gostaria de tê-la quando comecei, autodidata, sem formação formal.</p></details>
-  <details><summary>🇫🇷 Français</summary><p>J'ai créé ce projet parce que j'en avais assez des outils de design visuel pour Flutter qui ne lisent pas votre vrai code — ils partent d'une toile vierge ou ignorent les widgets que vous avez déjà construits. Celui-ci les lit vraiment : il ouvre votre projet réel et vous laisse esquisser des changements sur l'existant. Il est gratuit et open source parce que j'aurais aimé l'avoir à mes débuts, autodidacte, sans formation officielle.</p></details>
-  <details><summary>🇩🇪 Deutsch</summary><p>Ich habe dieses Projekt gebaut, weil ich es leid war, dass visuelle Design-Tools für Flutter deinen echten Code nicht lesen — sie starten entweder bei null oder wissen nicht, welche Widgets du bereits gebaut hast. Dieses hier liest ihn wirklich: es öffnet dein echtes Projekt und lässt dich Änderungen über das Bestehende skizzieren. Es ist kostenlos und Open Source, weil ich es mir zu Beginn gewünscht hätte, als Autodidakt ohne formale Ausbildung.</p></details>
-  <details><summary>🇮🇹 Italiano</summary><p>Ho creato questo progetto perché ero stanco degli strumenti di design visivo per Flutter che non leggono il tuo codice reale — o partono da zero, o non capiscono quali widget hai già costruito. Questo li legge davvero: apre il tuo progetto reale e ti lascia abbozzare modifiche su ciò che già esiste. È gratuito e open source perché avrei voluto averlo quando ho iniziato, autodidatta, senza formazione formale.</p></details>
-</section>
+<!-- ── 10. CTA strip + footer ───────────────────────────── -->
+<div class="wrap">
+  <div class="cta-strip reveal">
+    <h3><span data-i18n="es">¿Listo para bocetar tu app real?</span><span data-i18n="en" hidden>Ready to sketch your real app?</span></h3>
+    <p><span data-i18n="es">5 minutos para tenerlo corriendo. 100% local, 0 anuncios, código abierto.</span><span data-i18n="en" hidden">5 minutes to get it running. 100% local, 0 ads, open source.</span></p>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a class="btn" href="./index.html">🎨 <span data-i18n="es">Probar Canvas Web</span><span data-i18n="en" hidden>Try Web Canvas</span></a>
+      <a class="btn ghost" href="https://github.com/erbolamm/apliarte-widget-canvas" target="_blank" rel="noreferrer">⭐ <span data-i18n="es">Repo en GitHub</span><span data-i18n="en" hidden>GitHub repo</span></a>
+    </div>
+  </div>
+</div>
 
-<!-- 10. Compartir + footer -->
 <footer class="wrap">
   <div class="share">
     <a class="share-btn" data-share="x" href="#" target="_blank" rel="noreferrer">𝕏 X</a>
@@ -479,13 +1306,11 @@ fvm flutter run -d chrome</pre>
   </div>
   <div>
     <a href="https://github.com/erbolamm/apliarte-widget-canvas" target="_blank" rel="noreferrer" style="color:var(--cyan);">GitHub</a>
-    · © 2026 ApliArte · MIT License · Hecho con 🧠 desde 2023 / Made with 🧠 since 2023
+    · © 2026 ApliArte · MIT License · <span data-i18n="es">Hecho con 🧠 desde 2023</span><span data-i18n="en" hidden>Made with 🧠 since 2023</span>
   </div>
 </footer>
 
-<!-- Banner flotante de comunidad — rotativo, mismo patron (contenido/comportamiento) que el
-     de FabricaDeAgentesApliarte, portado a HTML/CSS/JS plano y con mensajes propios de este
-     proyecto. Bilingue ES/EN, sigue el idioma activo del selector de arriba. -->
+<!-- ── Banner flotante de comunidad ─────────────────────── -->
 <div id="community-banner">
   <button type="button" class="close-btn" aria-label="Cerrar">✕</button>
   <div class="banner-body">
@@ -538,9 +1363,7 @@ fvm flutter run -d chrome</pre>
       btn.addEventListener('click', () => setLang(btn.getAttribute('data-setlang')));
     });
 
-    // Banner flotante de comunidad — mismo comportamiento (rotacion cada 10s,
-    // se puede cerrar) que CommunityBanner de FabricaDeAgentesApliarte,
-    // portado a JS plano con mensajes propios de este proyecto.
+    // Banner flotante de comunidad
     const BANNER_MESSAGES = [
       {
         emoji: '☕',
@@ -596,6 +1419,33 @@ fvm flutter run -d chrome</pre>
       bannerIndex = (bannerIndex + 1) % BANNER_MESSAGES.length;
       renderBanner();
     }, 10000);
+
+    // ── Scroll-reveal con IntersectionObserver (progressive) ──
+    // Solo activamos la animación si el navegador la soporta Y el usuario
+    // no ha pedido reduced-motion. Si no, el contenido se queda visible
+    // (porque el CSS por defecto no oculta nada hasta que se añade `js-reveal`).
+    const prefersReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if ('IntersectionObserver' in window && !prefersReduce) {
+      document.documentElement.classList.add('js-reveal');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+    }
+
+    // ── Nav shadow on scroll ──
+    const nav = document.querySelector('.nav');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      nav.style.boxShadow = y > 8 ? '0 6px 24px rgba(0,0,0,0.4)' : 'none';
+      lastY = y;
+    }, { passive: true });
   })();
 </script>
 
