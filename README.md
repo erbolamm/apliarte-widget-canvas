@@ -1,5 +1,16 @@
 # ApliArte Widget Canvas
 
+> **Bocetea, anota y diseña sobre tu app Flutter real** — Lienzo visual interactivo con Material 3 Expressive, capa sobre captura de pantalla y exportación quirúrgica de prompts.
+
+🌐 **Demo Web en Vivo:** [erbolamm.github.io/apliarte-widget-canvas](https://erbolamm.github.io/apliarte-widget-canvas/)  
+📄 **Landing & Documentación:** [erbolamm.github.io/apliarte-widget-canvas/landing.html](https://erbolamm.github.io/apliarte-widget-canvas/landing.html)
+
+[![Estado](https://img.shields.io/badge/estado-Beta%20Web%20%2B%20Local-orange)](#cómo-funciona)
+[![Platform](https://img.shields.io/badge/platform-Web%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-blue)](#estructura-del-repo)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
+
 **[🇪🇸 Español](#español) · [🇬🇧 English](#english)**
 
 ## Español
@@ -234,20 +245,22 @@ Ho creato questo progetto perché ero stanco degli strumenti di design visivo pe
 
 </details>
 
+## 💥 Compártelo
+
+Si este proyecto te ahorra tiempo o dolores de cabeza boceteando y diseñando apps Flutter, compártelo:
+
+[𝕏 Twitter / X](https://twitter.com/intent/tweet?text=ApliArte%20Widget%20Canvas%20%E2%80%94%20Bocetea%2C%20anota%20y%20dise%C3%B1a%20sobre%20tu%20app%20Flutter%20real%20en%20el%20navegador.&url=https%3A%2F%2Ferbolamm.github.io%2Fapliarte-widget-canvas%2F) · [💼 LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Ferbolamm.github.io%2Fapliarte-widget-canvas%2F) · [💬 WhatsApp](https://api.whatsapp.com/send?text=ApliArte%20Widget%20Canvas%20%E2%80%94%20Bocetea%2C%20anota%20y%20dise%C3%B1a%20sobre%20tu%20app%20Flutter%20real%3A%20https%3A%2F%2Ferbolamm.github.io%2Fapliarte-widget-canvas%2F) · [✈️ Telegram](https://t.me/share/url?url=https%3A%2F%2Ferbolamm.github.io%2Fapliarte-widget-canvas%2F&text=ApliArte%20Widget%20Canvas%20%E2%80%94%20Bocetea%2C%20anota%20y%20dise%C3%B1a%20sobre%20tu%20app%20Flutter%20real) · [🟠 Reddit](https://www.reddit.com/submit?url=https%3A%2F%2Ferbolamm.github.io%2Fapliarte-widget-canvas%2F&title=ApliArte%20Widget%20Canvas%20%E2%80%94%20Bocetea%2C%20anota%20y%20dise%C3%B1a%20sobre%20tu%20app%20Flutter%20real) · [🔵 Facebook](https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ferbolamm.github.io%2Fapliarte-widget-canvas%2F) · [🧵 Threads](https://www.threads.net/intent/post?text=ApliArte%20Widget%20Canvas%20%E2%80%94%20Bocetea%2C%20anota%20y%20dise%C3%B1a%20sobre%20tu%20app%20Flutter%20real.%20https%3A%2F%2Ferbolamm.github.io%2Fapliarte-widget-canvas%2F) · [📧 Email](mailto:?subject=ApliArte%20Widget%20Canvas%20%E2%80%94%20Bocetea%20tu%20app%20Flutter&body=Te%20comparto%20ApliArte%20Widget%20Canvas%3A%20bocetea%2C%20anota%20y%20dise%C3%B1a%20sobre%20tu%20app%20Flutter%20real.%0A%0Ahttps%3A%2F%2Ferbolamm.github.io%2Fapliarte-widget-canvas%2F)
+
 ## 💖 Apoya el proyecto
 Herramienta gratuita y open source. Si te ahorra tiempo, un café ayuda a mantener el desarrollo.
 
 | Plataforma | Enlace |
 |-----------|--------|
-| PayPal | paypal.me/erbolamm |
-| Ko-fi | ko-fi.com/C0C11TWR1K |
-| Twitch Tip | streamelements.com/apliarte/tip |
+| PayPal | [paypal.me/erbolamm](https://paypal.me/erbolamm) |
+| Ko-fi | [ko-fi.com/C0C11TWR1K](https://ko-fi.com/C0C11TWR1K) |
+| Twitch Tip | [streamelements.com/apliarte/tip](https://streamelements.com/apliarte/tip) |
 
-📦 [GitHub](https://github.com/erbolamm/apliarte-widget-canvas)
+🌐 [apliarte.com](https://apliarte.com) · 📦 [GitHub](https://github.com/erbolamm/apliarte-widget-canvas)
 
 ## Licencia
 MIT — © 2026 ApliArte
-
-## About
-Editor visual gratuito y open source que lee proyectos Flutter reales y genera prompts de edición
-para agentes de código con IA.

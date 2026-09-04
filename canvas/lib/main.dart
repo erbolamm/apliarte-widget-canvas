@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'models/boceto_sesion.dart';
 import 'models/historial_canvas.dart';
@@ -733,6 +734,22 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(widget.isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, size: 20),
               onPressed: widget.onToggleTheme,
             ),
+          IconButton(
+            tooltip: 'Landing y Documentación',
+            icon: const Icon(Icons.article_outlined, size: 20),
+            onPressed: () => launchUrl(
+              Uri.parse('landing.html'),
+              webOnlyWindowName: '_blank',
+            ),
+          ),
+          IconButton(
+            tooltip: 'Repositorio en GitHub',
+            icon: const Icon(Icons.code_rounded, size: 20),
+            onPressed: () => launchUrl(
+              Uri.parse('https://github.com/erbolamm/apliarte-widget-canvas'),
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
         ],
       ),
       body: Row(
@@ -1761,6 +1778,23 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             const Spacer(),
+            IconButton(
+              tooltip: 'Landing y Documentación',
+              icon: Icon(Icons.article_outlined, size: 18, color: scheme.onSurfaceVariant),
+              onPressed: () => launchUrl(
+                Uri.parse('landing.html'),
+                webOnlyWindowName: '_blank',
+              ),
+            ),
+            IconButton(
+              tooltip: 'Repositorio en GitHub',
+              icon: Icon(Icons.code_rounded, size: 18, color: scheme.onSurfaceVariant),
+              onPressed: () => launchUrl(
+                Uri.parse('https://github.com/erbolamm/apliarte-widget-canvas'),
+                mode: LaunchMode.externalApplication,
+              ),
+            ),
+            const SizedBox(height: 8),
             if (_servidorVivo != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
