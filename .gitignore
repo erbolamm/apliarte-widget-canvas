@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# FVM Version Cache
+.fvm/
+
+# Build & Tooling
+.dart_tool/
+build/
+*.log

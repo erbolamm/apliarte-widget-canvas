@@ -1,0 +1,4 @@
+name: fixture_app
+description: Proyecto Flutter minimo, solo para probar el extractor de forma aislada (no depende de CalcaApp real).
+environment:
+  sdk: ^3.7.0

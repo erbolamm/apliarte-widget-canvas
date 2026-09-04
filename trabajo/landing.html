@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ApliArte Widget Canvas — Bocetea tu app Flutter real</title>
+<style>
+  :root {
+    --primary: #005fa9;
+    --navy: #00467b;
+    --cyan: #5ecef5;
+    --glow: #8fd5fa;
+    --white: #fdfdfd;
+    --bg: #141622;
+    --surface: #1e2238;
+    --charcoal: #303030;
+    --muted: #bebbb9;
+    --border: #a6a6a6;
+    --amber: #e8955e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Abel', system-ui, sans-serif;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { font-family: 'Fira Sans Condensed', system-ui, sans-serif; font-weight: 700; }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+  section { padding: 56px 0; }
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(94, 206, 245, 0.25);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(94, 206, 245, 0.12);
+    border: 1px solid rgba(94, 206, 245, 0.3);
+    color: var(--cyan);
+    padding: 5px 12px; border-radius: 999px; font-size: 13px; margin: 4px 6px 4px 0;
+  }
+  .badge.amber { color: var(--amber); border-color: rgba(232,149,94,.35); background: rgba(232,149,94,.1); }
+  .btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary), var(--cyan));
+    color: #06131f; font-weight: 700; text-decoration: none;
+    padding: 12px 22px; border-radius: 10px;
+    box-shadow: 0 0 14px rgba(94, 206, 245, 0.4);
+  }
+  .grid6 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 24px; }
+  .steps { counter-reset: step; list-style: none; padding: 0; }
+  .steps li { counter-increment: step; margin: 14px 0; padding-left: 44px; position: relative; }
+  .steps li::before {
+    content: counter(step); position: absolute; left: 0; top: -2px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--primary); color: var(--white);
+    display: flex; align-items: center; justify-content: center; font-weight: 700;
+  }
+  pre {
+    background: #0c0e18; border: 1px solid rgba(94,206,245,.2); border-radius: 10px;
+    padding: 14px; overflow-x: auto; font-size: 13px;
+  }
+  .roadmap-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .status { flex-shrink: 0; font-size: 13px; padding: 3px 10px; border-radius: 999px; }
+  .status.listo { background: rgba(94,206,245,.15); color: var(--cyan); }
+  .status.siguiente { background: rgba(232,149,94,.15); color: var(--amber); }
+  .status.idea { background: rgba(255,255,255,.08); color: var(--muted); }
+  .support-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .support-links a { color: var(--cyan); text-decoration: none; border-bottom: 1px dotted var(--cyan); }
+  details { background: var(--surface); border-radius: 10px; padding: 10px 16px; margin: 8px 0; border: 1px solid rgba(255,255,255,.08); }
+  summary { cursor: pointer; font-weight: 600; }
+  footer { text-align: center; padding: 40px 0; color: var(--muted); font-size: 13px; }
+  .share { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+  .share a { color: var(--white); background: var(--charcoal); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; }
+  .warn { border-left: 3px solid var(--amber); padding: 10px 14px; background: rgba(232,149,94,.08); border-radius: 0 8px 8px 0; font-size: 14px; }
+  .lang-switch { display: flex; gap: 6px; }
+  .lang-switch button {
+    background: transparent; border: 1px solid rgba(94,206,245,.35); color: var(--muted);
+    padding: 5px 12px; border-radius: 999px; font-size: 13px; cursor: pointer;
+  }
+  .lang-switch button.active { background: rgba(94,206,245,.15); color: var(--cyan); border-color: var(--cyan); }
+  [data-i18n][hidden] { display: none; }
+
+  #community-banner {
+    position: fixed; right: 16px; bottom: 16px; z-index: 40;
+    max-width: 340px;
+    background: rgba(30, 34, 56, 0.97);
+    border: 1px solid rgba(94, 206, 245, 0.3);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.4);
+    backdrop-filter: blur(6px);
+    animation: banner-in .3s ease-out;
+  }
+  #community-banner[hidden] { display: none; }
+  @keyframes banner-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  #community-banner .close-btn {
+    position: absolute; top: 8px; right: 10px; background: none; border: none;
+    color: var(--muted); cursor: pointer; font-size: 16px; line-height: 1; padding: 4px;
+  }
+  #community-banner .close-btn:hover { color: var(--white); }
+  #community-banner .banner-body { display: flex; gap: 10px; align-items: flex-start; }
+  #community-banner .banner-emoji { font-size: 22px; }
+  #community-banner .banner-badge {
+    display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 9px;
+    border-radius: 999px; border: 1px solid rgba(232,149,94,.35); background: rgba(232,149,94,.12);
+    color: var(--amber); margin-bottom: 6px;
+  }
+  #community-banner h4 { margin: 0 0 4px; font-size: 13px; }
+  #community-banner p { margin: 0 0 10px; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+  #community-banner .banner-cta {
+    display: inline-block; font-size: 11px; font-weight: 700; text-decoration: none;
+    background: var(--primary); color: var(--white); padding: 6px 14px; border-radius: 999px;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1. Header con badges de estado y plataformas / status & platform badges -->
+<header class="wrap" style="padding-top:32px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+  <div>
+    <span class="badge">🌐 Web</span>
+    <span class="badge">🍎 macOS</span>
+    <span class="badge">🪟 Windows</span>
+    <span class="badge">🐧 Linux</span>
+    <span class="badge">📸 Capa sobre App Real</span>
+    <span class="badge">✨ IA Groq</span>
+    <span class="badge">🎨 Material 3</span>
+    <span class="badge amber" data-i18n="es">🆓 Gratis</span>
+    <span class="badge amber" data-i18n="en" hidden>🆓 Free</span>
+    <span class="badge amber" data-i18n="es">🚫 Sin publicidad</span>
+    <span class="badge amber" data-i18n="en" hidden>🚫 No ads</span>
+    <span class="badge amber" data-i18n="es">🔒 100% local</span>
+    <span class="badge amber" data-i18n="en" hidden>🔒 100% local</span>
+  </div>
+  <div class="lang-switch">
+    <button type="button" data-setlang="es" class="active">ES</button>
+    <button type="button" data-setlang="en">EN</button>
+  </div>
+</header>
+
+<!-- 2. Hero -->
+<section class="wrap">
+  <div data-i18n="es">
+    <h1 style="font-size:2.4em; margin-bottom:8px;">Bocetea, anota y diseña sobre tu app Flutter real.</h1>
+    <p style="color:var(--muted); font-size:1.15em; max-width:680px;">
+      ApliArte Widget Canvas abre tu proyecto Flutter real, proyecta capturas en el marco del emulador,
+      te permite marcar pasos con Callouts numerados, flechas y cajas de rediseño, editar con la suite
+      completa Material 3 y generar código con IA o prompts quirúrgicos — 100% en tu máquina.
+    </p>
+    <a class="btn" href="#descargas">Empezar →</a>
+  </div>
+  <div data-i18n="en" hidden>
+    <h1 style="font-size:2.4em; margin-bottom:8px;">Sketch, annotate and design directly over your real Flutter app.</h1>
+    <p style="color:var(--muted); font-size:1.15em; max-width:680px;">
+      ApliArte Widget Canvas opens your real Flutter project, projects actual app screenshots inside the emulator frame,
+      lets you annotate steps with numbered Callouts, arrows, and redesign boxes, edit with the full Material 3 suite,
+      and generate code with AI or surgical prompts — 100% on your machine.
+    </p>
+    <a class="btn" href="#descargas">Get started →</a>
+  </div>
+</section>
+
+<!-- 3. Grid de 9 beneficios técnicos -->
+<section class="wrap">
+  <div data-i18n="es">
+    <h2>Ingeniería real, no humo</h2>
+    <div class="grid6">
+      <div class="card"><strong>📸 Capa sobre Captura Real</strong><p style="color:var(--muted); margin:8px 0 0;">Carga capturas reales en el emulador con opacidad ajustable. Diseña sobre la UI real sin pelear con BLoCs, GetIt o audio nativo.</p></div>
+      <div class="card"><strong>🔢 Anotaciones Técnicas</strong><p style="color:var(--muted); margin:8px 0 0;">Callouts numerados (<code class="mono">①, ②, ③</code>), flechas indicadoras, cajas de rediseño y reglas de medición en píxeles.</p></div>
+      <div class="card"><strong>🎨 Suite Completa Material 3</strong><p style="color:var(--muted); margin:8px 0 0;">46+ widgets oficiales de Flutter (Buttons, Cards, Chips, ListTiles, NavBars, Sliders...) renderizados con widgets reales.</p></div>
+      <div class="card"><strong>⚡ Inspector Lateral M3</strong><p style="color:var(--muted); margin:8px 0 0;">Edita en vivo textos, colores HEX, bordes, anchos, acciones táctiles y catálogo de iconos oficial con búsqueda.</p></div>
+      <div class="card"><strong>🤖 Motor de IA con Groq</strong><p style="color:var(--muted); margin:8px 0 0;">Generación ultra-rápida de código Flutter nativo con <code class="mono">llama-3.3-70b-versatile</code> o multi-proveedor (OpenAI, Claude, Gemini).</p></div>
+      <div class="card"><strong>🌳 Análisis AST real</strong><p style="color:var(--muted); margin:8px 0 0;">Usa <code class="mono">package:analyzer</code> de Dart para leer tu código de verdad — sin necesitar compilar ni <code class="mono">pub get</code>.</p></div>
+      <div class="card"><strong>↩️ Historial Ilimitado</strong><p style="color:var(--muted); margin:8px 0 0;">Soporte nativo para <code class="mono">Cmd+Z / Ctrl+Z</code> (Deshacer) y <code class="mono">⇧Cmd+Z / Ctrl+Y</code> (Rehacer) en cada movimiento visual.</p></div>
+      <div class="card"><strong>📋 Export de prompt</strong><p style="color:var(--muted); margin:8px 0 0;">Genera instrucciones estructuradas por pasos numerados listas para pegar en Claude Code, Codex, Antigravity o Copilot.</p></div>
+      <div class="card"><strong>🔒 Privacidad local</strong><p style="color:var(--muted); margin:8px 0 0;">Tu código nunca sale de tu máquina. El servidor local solo escucha en <code class="mono">localhost</code>, nunca en la red.</p></div>
+    </div>
+  </div>
+  <div data-i18n="en" hidden>
+    <h2>Real engineering, no marketing fluff</h2>
+    <div class="grid6">
+      <div class="card"><strong>📸 Real Screenshot Layer</strong><p style="color:var(--muted); margin:8px 0 0;">Load real app screenshots inside the emulator frame with adjustable opacity. Design on top without fighting BLoCs, GetIt, or native audio.</p></div>
+      <div class="card"><strong>🔢 Technical Annotations</strong><p style="color:var(--muted); margin:8px 0 0;">Numbered Callouts (<code class="mono">①, ②, ③</code>), directional arrows, redesign bounding boxes, and pixel measurement rulers.</p></div>
+      <div class="card"><strong>🎨 Complete Material 3 Suite</strong><p style="color:var(--muted); margin:8px 0 0;">46+ official Flutter widgets (Buttons, Cards, Chips, ListTiles, NavBars, Sliders...) rendered with actual Flutter widgets.</p></div>
+      <div class="card"><strong>⚡ M3 Side Inspector</strong><p style="color:var(--muted); margin:8px 0 0;">Live editing for texts, HEX colors, border radii, widths, tap actions, and searchable official Material icon picker.</p></div>
+      <div class="card"><strong>🤖 AI Engine with Groq</strong><p style="color:var(--muted); margin:8px 0 0;">Ultra-fast native Flutter code generation with <code class="mono">llama-3.3-70b-versatile</code> or multi-provider (OpenAI, Claude, Gemini).</p></div>
+      <div class="card"><strong>🌳 Real AST analysis</strong><p style="color:var(--muted); margin:8px 0 0;">Uses Dart's <code class="mono">package:analyzer</code> to read your actual code — no compilation or <code class="mono">pub get</code> needed.</p></div>
+      <div class="card"><strong>↩️ Unlimited History</strong><p style="color:var(--muted); margin:8px 0 0;">Native support for <code class="mono">Cmd+Z / Ctrl+Z</code> (Undo) and <code class="mono">⇧Cmd+Z / Ctrl+Y</code> (Redo) for every visual edit.</p></div>
+      <div class="card"><strong>📋 Prompt export</strong><p style="color:var(--muted); margin:8px 0 0;">Generates step-by-step numbered instructions ready to paste into Claude Code, Codex, Antigravity, or Copilot.</p></div>
+      <div class="card"><strong>🔒 Local privacy</strong><p style="color:var(--muted); margin:8px 0 0;">Your code never leaves your machine. The server only listens on <code class="mono">localhost</code>, never on the network.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Cómo funciona + Mini FAQ -->
+<section class="wrap">
+  <div data-i18n="es">
+    <h2>Cómo funciona</h2>
+    <ol class="steps">
+      <li>Arranca el servidor local (<code class="mono">dart run bin/servidor.dart</code>) y abre el canvas web.</li>
+      <li>Selecciona tu proyecto y archivo desde el explorador inteligente (escaneo AST automático).</li>
+      <li>Carga la captura de tu app real en el marco del emulador con opacidad regulable.</li>
+      <li>Anota con herramientas visuales (Callouts numerados, flechas, cajas de rediseño, reglas) o añade widgets Material 3.</li>
+      <li>Personaliza en el Inspector lateral: textos, colores, bordes, iconos y comportamiento.</li>
+      <li>Exporta el prompt quirúrgico o genera el código directamente con el motor de IA integrado (Groq).</li>
+    </ol>
+    <h3 style="margin-top:32px;">Preguntas rápidas</h3>
+    <details><summary>¿Qué es el modo de edición sobre captura real?</summary><p style="color:var(--muted);">Te permite usar una captura de tu aplicación real en ejecución como fondo dentro del marco del emulador (Móvil V, H o Web), con opacidad ajustable. Así puedes diseñar y anotar cambios visuales directamente sobre la vista real sin lidiar con BLoCs, GetIt o audio nativo que no compilarían en un navegador aislado.</p></details>
+    <details><summary>¿Sube mi código a algún servidor externo?</summary><p style="color:var(--muted);">No. Todo el análisis AST, el servidor local y el canvas corren en tu propia máquina en <code class="mono">127.0.0.1</code>. Si usas el motor de IA, este solo consulta la API del proveedor que tú elijas (como Groq u OpenAI) con tu propia clave.</p></details>
+    <details><summary>¿Reemplaza a Flutter DevTools?</summary><p style="color:var(--muted);">No, son complementarios. DevTools inspecciona y perfila una app en ejecución; ApliArte Widget Canvas bocetea y documenta cambios visuales quirúrgicos antes de tocar código.</p></details>
+    <details><summary>¿Funciona con cualquier proyecto Flutter?</summary><p style="color:var(--muted);">Con cualquiera que tenga estructura estándar <code class="mono">lib/</code> y <code class="mono">pubspec.yaml</code>. Probado contra CalcaApp (7M+ descargas) y proyectos avanzados con Clean Architecture.</p></details>
+  </div>
+  <div data-i18n="en" hidden>
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li>Start the local server (<code class="mono">dart run bin/servidor.dart</code>) and open the web canvas.</li>
+      <li>Select your project and file from the smart explorer (automatic AST scanning).</li>
+      <li>Load a real app screenshot inside the emulator frame with adjustable opacity.</li>
+      <li>Annotate with visual tools (numbered Callouts, arrows, redesign boxes, rulers) or add Material 3 widgets.</li>
+      <li>Customize in the Side Inspector: texts, colors, borders, icons, and behavior notes.</li>
+      <li>Export the surgical prompt or generate code directly with the integrated AI engine (Groq).</li>
+    </ol>
+    <h3 style="margin-top:32px;">Quick questions</h3>
+    <details><summary>What is real screenshot editing mode?</summary><p style="color:var(--muted);">It lets you place a real screenshot of your running app as the background of the emulator frame (Mobile V, H, or Web) with adjustable opacity. You can design and annotate visual changes directly over the real UI without dealing with BLoCs, GetIt, or native audio that cannot compile in an isolated browser.</p></details>
+    <details><summary>Does it upload my code to any external server?</summary><p style="color:var(--muted);">No. All AST analysis, the local server, and the canvas run on your own machine at <code class="mono">127.0.0.1</code>. If you use the AI engine, it only queries your chosen provider API (such as Groq or OpenAI) using your own key.</p></details>
+    <details><summary>Does it replace Flutter DevTools?</summary><p style="color:var(--muted);">No, they're complementary. DevTools inspects and profiles a running app; ApliArte Widget Canvas sketches and documents surgical visual changes before writing code.</p></details>
+    <details><summary>Does it work with any Flutter project?</summary><p style="color:var(--muted);">With any project having a standard <code class="mono">lib/</code> and <code class="mono">pubspec.yaml</code> structure. Tested against CalcaApp (7M+ downloads) and advanced Clean Architecture projects.</p></details>
+  </div>
+</section>
+
+<!-- 5. Descargas -->
+<section class="wrap" id="descargas">
+  <div data-i18n="es">
+    <h2>Empezar ahora</h2>
+    <div class="warn">⚠️ Primera versión: se ejecuta desde el código fuente, todavía no hay instalador de un clic. Honesto por delante de bonito.</div>
+
+    <h3 style="margin-top:28px; font-size:1.05em;">Antes: ¿tienes <code class="mono">fvm</code>?</h3>
+    <p style="color:var(--muted); font-size:13px; max-width:600px;">
+      Este proyecto necesita Flutter 3.47.2 exacto, por eso los comandos llevan el prefijo
+      <code class="mono">fvm</code>. Es una herramienta para tener varias versiones de Flutter
+      instaladas sin que se pisen entre proyectos.
+    </p>
+    <pre class="mono">fvm --version</pre>
+    <p style="color:var(--muted); font-size:13px;">¿Da versión? Ya lo tienes, sigue abajo. ¿"command not found"?</p>
+    <pre class="mono"># macOS
+brew install fvm
+
+# Cualquier sistema con Dart/Flutter instalado
+dart pub global activate fvm</pre>
+    <p style="color:var(--muted); font-size:12px;">Más opciones: <a href="https://fvm.app/documentation/getting-started/installation" target="_blank" rel="noreferrer" style="color:var(--cyan);">fvm.app/documentation/getting-started/installation</a></p>
+
+    <h3 style="margin-top:28px; font-size:1.05em;">Ahora sí, a probarlo</h3>
+    <pre class="mono"># Clona el repo
+git clone https://github.com/erbolamm/apliarte-widget-canvas.git
+
+# Terminal 1 — servidor local
+cd apliarte-widget-canvas/servidor
+dart run bin/servidor.dart
+
+# Terminal 2 (nueva) — canvas
+cd apliarte-widget-canvas/canvas
+fvm flutter run -d chrome</pre>
+    <p style="color:var(--muted); font-size:12px; margin-top:8px;">⚠️ Cada bloque asume una terminal nueva desde la raíz del repo. "Address already in use" en el servidor: ya tienes uno corriendo de antes — <code class="mono">lsof -i :8799</code> + <code class="mono">kill</code>, o simplemente úsalo.</p>
+    <p style="color:var(--muted); font-size:13px; margin-top:12px;">Con las dos terminales corriendo, ya no necesitas escribir rutas a mano: el canvas incluye un <strong>Explorador Inteligente</strong> que escanea automáticamente todas las pantallas y widgets de tu proyecto. Eliges tu pantalla con un clic, o cargas una captura de tu app real en el emulador para empezar a diseñar y anotar inmediatamente.</p>
+  </div>
+  <div data-i18n="en" hidden>
+    <h2>Get started now</h2>
+    <div class="warn">⚠️ First version: runs from source, no one-click installer yet. Honest before pretty.</div>
+
+    <h3 style="margin-top:28px; font-size:1.05em;">First: do you have <code class="mono">fvm</code>?</h3>
+    <p style="color:var(--muted); font-size:13px; max-width:600px;">
+      This project needs Flutter 3.47.2 exactly, that's why the commands are prefixed with
+      <code class="mono">fvm</code>. It's a tool for keeping several Flutter versions installed
+      without them clashing between projects.
+    </p>
+    <pre class="mono">fvm --version</pre>
+    <p style="color:var(--muted); font-size:13px;">Got a version back? You're set, skip below. "command not found"?</p>
+    <pre class="mono"># macOS
+brew install fvm
+
+# Any system with Dart/Flutter already installed
+dart pub global activate fvm</pre>
+    <p style="color:var(--muted); font-size:12px;">More options: <a href="https://fvm.app/documentation/getting-started/installation" target="_blank" rel="noreferrer" style="color:var(--cyan);">fvm.app/documentation/getting-started/installation</a></p>
+
+    <h3 style="margin-top:28px; font-size:1.05em;">Now, try it</h3>
+    <pre class="mono"># Clone the repo
+git clone https://github.com/erbolamm/apliarte-widget-canvas.git
+
+# Terminal 1 — local server
+cd apliarte-widget-canvas/servidor
+dart run bin/servidor.dart
+
+# Terminal 2 (new) — canvas
+cd apliarte-widget-canvas/canvas
+fvm flutter run -d chrome</pre>
+    <p style="color:var(--muted); font-size:12px; margin-top:8px;">⚠️ Each block assumes a new terminal from the repo root. "Address already in use" on the server means one is already running — <code class="mono">lsof -i :8799</code> + <code class="mono">kill</code>, or just use it.</p>
+    <p style="color:var(--muted); font-size:13px; margin-top:12px;">With both terminals running, you don't even need to type paths by hand: the canvas includes a <strong>Smart Project Explorer</strong> that automatically scans all screens and widgets in your project. Pick your screen in one click, or load a screenshot of your real app into the emulator frame to start designing and annotating immediately.</p>
+  </div>
+</section>
+
+<!-- 6. Apoyo comunitario (siguiendo el estandar Paso 3.14 de INBOX.md: hero + realidad vs humo + 3 niveles + otros canales) -->
+<section class="wrap" id="apoyar">
+  <div data-i18n="es">
+    <h2>El conocimiento es libre. El tiempo es valioso.</h2>
+    <p style="color:var(--muted); max-width:640px;">
+      Yo pongo las horas de código abierto; tú te llevas la herramienta lista para usar. Si te ahorra
+      tiempo de verdad, apoyar ayuda a que siga mantenido. Quien apoya hoy es un early adopter — habrá
+      reconocimiento y descuentos futuros si salen planes pro. Sin letra pequeña, de buena fe.
+    </p>
+    <div class="warn" style="max-width:640px; margin-top:16px;">
+      💡 <strong>Realidad vs Humo:</strong> hay consultoras cobrando miles de euros por herramientas
+      similares. Esta es gratis y de código abierto. Si te hace ganar tiempo o dinero, ¡invita un café!
+    </div>
+  </div>
+  <div data-i18n="en" hidden>
+    <h2>Knowledge is free. Time is valuable.</h2>
+    <p style="color:var(--muted); max-width:640px;">
+      I put in the open-source hours; you get a tool that's ready to use. If it genuinely saves you
+      time, supporting it helps keep it maintained. Anyone who supports today is an early adopter —
+      there will be recognition and future discounts if pro plans launch. No fine print, good faith.
+    </p>
+    <div class="warn" style="max-width:640px; margin-top:16px;">
+      💡 <strong>Reality vs hype:</strong> some consultancies charge thousands of euros for similar
+      tooling. This one is free and open source. If it saves you time or money, buy me a coffee!
+    </div>
+  </div>
+
+  <div class="grid6" style="margin-top:28px;">
+    <div class="card" data-i18n="es">
+      <div style="font-size:1.8em;">☕</div>
+      <strong>Café</strong>
+      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Un gesto puntual, lo que cuesta un café.</p>
+      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://ko-fi.com/C0C11TWR1K" target="_blank" rel="noreferrer">Invitar un café</a>
+    </div>
+    <div class="card" data-i18n="en" hidden>
+      <div style="font-size:1.8em;">☕</div>
+      <strong>Coffee</strong>
+      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">A one-off gesture, the cost of a coffee.</p>
+      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://ko-fi.com/C0C11TWR1K" target="_blank" rel="noreferrer">Buy a coffee</a>
+    </div>
+
+    <div class="card" data-i18n="es" style="border-color:var(--cyan);">
+      <span class="badge">Recomendado · Comunidad</span>
+      <div style="font-size:1.8em; margin-top:8px;">💙</div>
+      <strong>Co-Creador</strong>
+      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Apoyo recurrente. Ayuda a decidir qué se construye después.</p>
+      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer">Ser Co-Creador</a>
+    </div>
+    <div class="card" data-i18n="en" hidden style="border-color:var(--cyan);">
+      <span class="badge">Recommended · Community</span>
+      <div style="font-size:1.8em; margin-top:8px;">💙</div>
+      <strong>Co-Creator</strong>
+      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Recurring support. Helps decide what gets built next.</p>
+      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer">Become a Co-Creator</a>
+    </div>
+
+    <div class="card" data-i18n="es">
+      <div style="font-size:1.8em;">🌟</div>
+      <strong>Mecenas Fundador</strong>
+      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Reconocimiento permanente: tu nombre queda en el README oficial.</p>
+      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer">Ser Mecenas</a>
+    </div>
+    <div class="card" data-i18n="en" hidden>
+      <div style="font-size:1.8em;">🌟</div>
+      <strong>Founding Patron</strong>
+      <p style="color:var(--muted); font-size:13px; margin:6px 0 14px;">Permanent recognition: your name stays in the official README.</p>
+      <a class="btn" style="font-size:12px; padding:8px 16px;" href="https://paypal.me/erbolamm" target="_blank" rel="noreferrer">Become a Patron</a>
+    </div>
+  </div>
+
+  <p data-i18n="es" style="color:var(--muted); font-size:13px; margin-top:20px;">Los botones enlazan directo a Ko-fi/PayPal — no hay pasarela de pago propia todavía, así que no fingimos una.</p>
+  <p data-i18n="en" hidden style="color:var(--muted); font-size:13px; margin-top:20px;">Buttons link straight to Ko-fi/PayPal — there's no custom payment flow yet, so we don't fake one.</p>
+
+  <div class="support-links">
+    <a href="https://github.com/erbolamm/apliarte-widget-canvas" target="_blank" rel="noreferrer">⭐ <span data-i18n="es">Estrella en GitHub</span><span data-i18n="en" hidden>Star on GitHub</span></a>
+    <a href="https://twitch.tv/apliarte" target="_blank" rel="noreferrer">🎥 Twitch</a>
+    <a href="https://streamelements.com/apliarte/tip" target="_blank" rel="noreferrer">💝 Tips</a>
+  </div>
+</section>
+
+<!-- 7. Roadmap por fases + hoja de bonificaciones por estrellas -->
+<section class="wrap">
+  <div data-i18n="es">
+    <h2>Roadmap</h2>
+    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 0 — Extractor: lee una clase real y clasifica sus widgets por AST.</span></div>
+    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 1 — Canvas visual interactivo: arrastra y reordena piezas con dot matrix.</span></div>
+    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 2 — Servidor local + expansión recursiva de widgets propios.</span></div>
+    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 3 — Export de prompt quirúrgico con pasos numerados para agentes de código.</span></div>
+    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 4 — Capa visual sobre app real: captura de emulador/dispositivo, Callouts numerados, flechas y reglas.</span></div>
+    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 5 — Suite completa Material 3 (46+ widgets), selector de iconos e Inspector lateral M3.</span></div>
+    <div class="roadmap-item"><span class="status listo">Listo ✅</span><span>Fase 6 — Motor de IA con Groq (Llama-3.3-70b) y multi-proveedor integrado.</span></div>
+    <div class="roadmap-item"><span class="status siguiente">Siguiente 🟡</span><span>Fase 7 — Instalador de escritorio empaquetado de un clic (macOS / Windows / Linux).</span></div>
+    <div class="roadmap-item"><span class="status idea">Idea 💡</span><span>Fase 8 — Login con GitHub: lee repos remotos sin servidor local.</span></div>
+    <h3 style="margin-top:32px;">⭐ Hoja de bonificaciones por estrellas</h3>
+    <p style="color:var(--muted);">Cada hito de estrellas en GitHub desbloquea la siguiente versión documentada:</p>
+    <div class="grid6" style="margin-top:12px;">
+      <div class="card">⭐ 100 → v2 documentada</div>
+      <div class="card">⭐ 500 → v3 documentada</div>
+      <div class="card">⭐ 1000+ → siguientes versiones, mismo criterio</div>
+    </div>
+  </div>
+  <div data-i18n="en" hidden>
+    <h2>Roadmap</h2>
+    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 0 — Extractor: reads a real class and classifies its widgets via AST.</span></div>
+    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 1 — Interactive visual canvas: drag and reorder pieces with dot matrix.</span></div>
+    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 2 — Local server + recursive expansion of your own widgets.</span></div>
+    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 3 — Surgical prompt export with numbered steps for coding agents.</span></div>
+    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 4 — Real App Overlay: emulator/device screenshots, numbered Callouts, arrows & rulers.</span></div>
+    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 5 — Full Material 3 suite (46+ widgets), icon picker & M3 Side Inspector.</span></div>
+    <div class="roadmap-item"><span class="status listo">Done ✅</span><span>Phase 6 — Integrated AI engine with Groq (Llama-3.3-70b) and multi-provider support.</span></div>
+    <div class="roadmap-item"><span class="status siguiente">Next 🟡</span><span>Phase 7 — Packaged one-click desktop installer (macOS / Windows / Linux).</span></div>
+    <div class="roadmap-item"><span class="status idea">Idea 💡</span><span>Phase 8 — GitHub login: read remote repos without a local server.</span></div>
+    <h3 style="margin-top:32px;">⭐ Star bonus roadmap</h3>
+    <p style="color:var(--muted);">Every GitHub star milestone unlocks the next documented version:</p>
+    <div class="grid6" style="margin-top:12px;">
+      <div class="card">⭐ 100 → documented v2</div>
+      <div class="card">⭐ 500 → documented v3</div>
+      <div class="card">⭐ 1000+ → next versions, same rule</div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Planes futuros -->
+<section class="wrap">
+  <div data-i18n="es">
+    <h2>Planes futuros (transparentes)</h2>
+    <div class="warn">⚠️ Sin pagos por ahora. Hoy todo es gratis. Los enseñamos por transparencia, no para vender nada todavía.</div>
+    <div class="grid6" style="margin-top:16px;">
+      <div class="card"><strong>Start</strong><p style="color:var(--muted);">Próximamente / No disponible</p></div>
+      <div class="card"><strong>Pro</strong><p style="color:var(--muted);">Próximamente / No disponible</p></div>
+      <div class="card"><strong>Vitalicio</strong><p style="color:var(--muted);">Próximamente / No disponible</p></div>
+    </div>
+  </div>
+  <div data-i18n="en" hidden>
+    <h2>Future plans (transparent)</h2>
+    <div class="warn">⚠️ No payments for now. Everything is free today. We're showing this for transparency, not to sell anything yet.</div>
+    <div class="grid6" style="margin-top:16px;">
+      <div class="card"><strong>Start</strong><p style="color:var(--muted);">Coming soon / Not available</p></div>
+      <div class="card"><strong>Pro</strong><p style="color:var(--muted);">Coming soon / Not available</p></div>
+      <div class="card"><strong>Lifetime</strong><p style="color:var(--muted);">Coming soon / Not available</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Nota personal del autor (siempre visible en los 6 idiomas, independiente del selector ES/EN) -->
+<section class="wrap">
+  <h2>Una nota personal / A personal note</h2>
+  <p style="color:var(--muted); font-size:13px;">⚠️ Borrador — pendiente de que Javier lo revise/reescriba con su propia voz antes de publicar. / Draft — pending Javier's own review before publishing.</p>
+  <details open><summary>🇪🇸 Español</summary><p>Hice este proyecto porque me cansé de que las herramientas de diseño visual para Flutter no lean tu código real — o parten de cero, o no entienden qué widgets ya construiste tú. Esto sí lo hace: abre tu proyecto de verdad, y te deja bocetar cambios sobre lo que ya existe. Es gratis y open source porque a mí me hubiera gustado tenerlo cuando empecé, sin estudios ni saber inglés, aprendiendo Flutter solo.</p></details>
+  <details><summary>🇬🇧 English</summary><p>I built this because I got tired of visual design tools for Flutter that don't read your real code — they either start from a blank canvas or have no idea what widgets you've already built. This one does: it opens your actual project and lets you sketch changes on top of what's already there. It's free and open source because I wish I'd had it when I started, self-taught, with no formal education.</p></details>
+  <details><summary>🇧🇷 Português</summary><p>Criei este projeto porque me cansei de ferramentas de design visual para Flutter que não leem seu código real — ou partem do zero, ou não entendem quais widgets você já construiu. Esta lê: abre seu projeto de verdade e permite esboçar mudanças sobre o que já existe. É gratuito e open source porque eu gostaria de tê-la quando comecei, autodidata, sem formação formal.</p></details>
+  <details><summary>🇫🇷 Français</summary><p>J'ai créé ce projet parce que j'en avais assez des outils de design visuel pour Flutter qui ne lisent pas votre vrai code — ils partent d'une toile vierge ou ignorent les widgets que vous avez déjà construits. Celui-ci les lit vraiment : il ouvre votre projet réel et vous laisse esquisser des changements sur l'existant. Il est gratuit et open source parce que j'aurais aimé l'avoir à mes débuts, autodidacte, sans formation officielle.</p></details>
+  <details><summary>🇩🇪 Deutsch</summary><p>Ich habe dieses Projekt gebaut, weil ich es leid war, dass visuelle Design-Tools für Flutter deinen echten Code nicht lesen — sie starten entweder bei null oder wissen nicht, welche Widgets du bereits gebaut hast. Dieses hier liest ihn wirklich: es öffnet dein echtes Projekt und lässt dich Änderungen über das Bestehende skizzieren. Es ist kostenlos und Open Source, weil ich es mir zu Beginn gewünscht hätte, als Autodidakt ohne formale Ausbildung.</p></details>
+  <details><summary>🇮🇹 Italiano</summary><p>Ho creato questo progetto perché ero stanco degli strumenti di design visivo per Flutter che non leggono il tuo codice reale — o partono da zero, o non capiscono quali widget hai già costruito. Questo li legge davvero: apre il tuo progetto reale e ti lascia abbozzare modifiche su ciò che già esiste. È gratuito e open source perché avrei voluto averlo quando ho iniziato, autodidatta, senza formazione formale.</p></details>
+</section>
+
+<!-- 10. Compartir + footer -->
+<footer class="wrap">
+  <div class="share">
+    <a class="share-btn" data-share="x" href="#" target="_blank" rel="noreferrer">𝕏 X</a>
+    <a class="share-btn" data-share="linkedin" href="#" target="_blank" rel="noreferrer">in LinkedIn</a>
+    <a class="share-btn" data-share="whatsapp" href="#" target="_blank" rel="noreferrer">WhatsApp</a>
+    <a class="share-btn" data-share="telegram" href="#" target="_blank" rel="noreferrer">Telegram</a>
+    <a class="share-btn" data-share="reddit" href="#" target="_blank" rel="noreferrer">Reddit</a>
+    <a class="share-btn" data-share="facebook" href="#" target="_blank" rel="noreferrer">Facebook</a>
+    <a class="share-btn" data-share="email" href="#">✉️ Email</a>
+  </div>
+  <div>
+    <a href="https://github.com/erbolamm/apliarte-widget-canvas" target="_blank" rel="noreferrer" style="color:var(--cyan);">GitHub</a>
+    · © 2026 ApliArte · MIT License · Hecho con 🧠 desde 2023 / Made with 🧠 since 2023
+  </div>
+</footer>
+
+<!-- Banner flotante de comunidad — rotativo, mismo patron (contenido/comportamiento) que el
+     de FabricaDeAgentesApliarte, portado a HTML/CSS/JS plano y con mensajes propios de este
+     proyecto. Bilingue ES/EN, sigue el idioma activo del selector de arriba. -->
+<div id="community-banner">
+  <button type="button" class="close-btn" aria-label="Cerrar">✕</button>
+  <div class="banner-body">
+    <span class="banner-emoji" id="banner-emoji"></span>
+    <div>
+      <span class="banner-badge" id="banner-badge"></span>
+      <h4 id="banner-title"></h4>
+      <p id="banner-desc"></p>
+      <a class="banner-cta" id="banner-cta" href="#" target="_blank" rel="noreferrer"></a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const shareUrl = 'https://github.com/erbolamm/apliarte-widget-canvas';
+    const shareText = 'ApliArte Widget Canvas — bocetea tu app Flutter real, no una imaginaria.';
+
+    const links = {
+      x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+      whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`,
+      telegram: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
+      reddit: `https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+      email: `mailto:?subject=${encodeURIComponent('ApliArte Widget Canvas')}&body=${encodeURIComponent(shareText + '\n\n' + shareUrl)}`
+    };
+
+    document.querySelectorAll('[data-share]').forEach((a) => {
+      const key = a.getAttribute('data-share');
+      if (!key || !links[key]) return;
+      a.setAttribute('href', links[key]);
+    });
+
+    let currentLang = 'es';
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        el.hidden = el.getAttribute('data-i18n') !== lang;
+      });
+      document.querySelectorAll('[data-setlang]').forEach((btn) => {
+        btn.classList.toggle('active', btn.getAttribute('data-setlang') === lang);
+      });
+      document.documentElement.lang = lang;
+      renderBanner();
+    }
+
+    document.querySelectorAll('[data-setlang]').forEach((btn) => {
+      btn.addEventListener('click', () => setLang(btn.getAttribute('data-setlang')));
+    });
+
+    // Banner flotante de comunidad — mismo comportamiento (rotacion cada 10s,
+    // se puede cerrar) que CommunityBanner de FabricaDeAgentesApliarte,
+    // portado a JS plano con mensajes propios de este proyecto.
+    const BANNER_MESSAGES = [
+      {
+        emoji: '☕',
+        es: { badge: '💡 Gratis de verdad', title: 'Esto es gratis y open source, sin letra pequeña', desc: 'Si te ahorra tiempo, un café ayuda a que siga mantenido.', cta: 'Invitar un café', link: '#' },
+        en: { badge: '💡 Actually free', title: 'This is free and open source, no fine print', desc: 'If it saves you time, a coffee helps keep it maintained.', cta: 'Buy a coffee', link: '#' },
+        linkHref: 'https://ko-fi.com/C0C11TWR1K'
+      },
+      {
+        emoji: '🐛',
+        es: { badge: '🧪 Aún en v1', title: '¿Encontraste algo raro? Cuéntamelo', desc: 'Cada issue real ayuda más que mil estrellas silenciosas.', cta: 'Abrir un issue', link: '#' },
+        en: { badge: '🧪 Still v1', title: 'Found something weird? Tell me', desc: 'One real issue helps more than a thousand silent stars.', cta: 'Open an issue', link: '#' },
+        linkHref: 'https://github.com/erbolamm/apliarte-widget-canvas/issues'
+      },
+      {
+        emoji: '⭐',
+        es: { badge: '🚀 Hoja de bonificaciones', title: 'A 100 estrellas, la v2 documentada', desc: 'Cada hito desbloquea la siguiente versión — mira el roadmap.', cta: 'Ver roadmap', link: '#' },
+        en: { badge: '🚀 Star bonus roadmap', title: 'At 100 stars, documented v2 unlocks', desc: 'Every milestone unlocks the next version — check the roadmap.', cta: 'See roadmap', link: '#' },
+        linkHref: '#descargas'
+      },
+      {
+        emoji: '📣',
+        es: { badge: '👨‍💻 Comunidad Flutter', title: '¿Conoces a alguien que le sirva esto?', desc: 'Compartir con otro dev Flutter ayuda más que cualquier anuncio.', cta: 'Compartir', link: '#' },
+        en: { badge: '👨‍💻 Flutter community', title: 'Know another dev who could use this?', desc: 'Sharing with one Flutter dev helps more than any ad.', cta: 'Share', link: '#' },
+        linkHref: '#'
+      }
+    ];
+    let bannerIndex = 0;
+    let bannerDismissed = false;
+
+    function renderBanner() {
+      const el = document.getElementById('community-banner');
+      if (bannerDismissed) { el.hidden = true; return; }
+      el.hidden = false;
+      const msg = BANNER_MESSAGES[bannerIndex];
+      const text = msg[currentLang];
+      document.getElementById('banner-emoji').textContent = msg.emoji;
+      document.getElementById('banner-badge').textContent = text.badge;
+      document.getElementById('banner-title').textContent = text.title;
+      document.getElementById('banner-desc').textContent = text.desc;
+      const cta = document.getElementById('banner-cta');
+      cta.textContent = text.cta;
+      cta.setAttribute('href', msg.linkHref);
+    }
+
+    document.querySelector('#community-banner .close-btn').addEventListener('click', () => {
+      bannerDismissed = true;
+      renderBanner();
+    });
+
+    renderBanner();
+    setInterval(() => {
+      if (bannerDismissed) return;
+      bannerIndex = (bannerIndex + 1) % BANNER_MESSAGES.length;
+      renderBanner();
+    }, 10000);
+  })();
+</script>
+
+</body>
+</html>
