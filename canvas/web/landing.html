@@ -590,10 +590,44 @@
     background: linear-gradient(135deg, rgba(30, 34, 56, 0.7), rgba(20, 22, 34, 0.9));
     border: 1px solid rgba(157, 127, 240, 0.25);
     border-radius: var(--radius);
-    padding: 26px 30px;
+    padding: 24px 28px;
     margin-top: 16px;
     position: relative;
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
+  }
+  .note-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .note-tab {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(157, 127, 240, 0.25);
+    color: var(--muted);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .note-tab:hover {
+    color: var(--white);
+    border-color: var(--glow);
+    background: rgba(157, 127, 240, 0.12);
+  }
+  .note-tab.active {
+    background: rgba(157, 127, 240, 0.22);
+    color: var(--white);
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px rgba(157, 127, 240, 0.25);
   }
   .note-box p {
     color: var(--text);
@@ -1286,7 +1320,7 @@ fvm flutter run -d chrome</pre>
   </div>
 </section>
 
-<!-- ── 9. Nota personal del autor ── -->
+<!-- ── 9. Nota personal del autor (6 idiomas, pestañas) ── -->
 <section class="wrap">
   <div class="section-head reveal">
     <span class="eyebrow"><span data-i18n="es">Nota personal</span><span data-i18n="en" hidden>Personal note</span></span>
@@ -1294,10 +1328,24 @@ fvm flutter run -d chrome</pre>
   </div>
 
   <div class="note-box reveal">
-    <p>
-      <span data-i18n="es">Hice este proyecto porque me cansé de que las herramientas de diseño visual para Flutter no lean tu código real — o parten de cero, o no entienden qué widgets ya construiste tú. Esto sí lo hace: abre tu proyecto de verdad, y te deja bocetar cambios sobre lo que ya existe. Es gratis y open source porque a mí me hubiera gustado tenerlo cuando empecé, sin estudios ni saber inglés, aprendiendo Flutter solo.</span>
-      <span data-i18n="en" hidden>I built this because I got tired of visual design tools for Flutter that don't read your real code — they either start from a blank canvas or have no idea what widgets you've already built. This one does: it opens your actual project and lets you sketch changes on top of what's already there. It's free and open source because I wish I'd had it when I started, self-taught, with no formal education.</span>
-    </p>
+    <div class="note-tabs" role="tablist" aria-label="Idiomas de la nota">
+      <button type="button" class="note-tab active" data-note-tab="es">🇪🇸 Español</button>
+      <button type="button" class="note-tab" data-note-tab="en">🇬🇧 English</button>
+      <button type="button" class="note-tab" data-note-tab="pt">🇧🇷 Português</button>
+      <button type="button" class="note-tab" data-note-tab="fr">🇫🇷 Français</button>
+      <button type="button" class="note-tab" data-note-tab="de">🇩🇪 Deutsch</button>
+      <button type="button" class="note-tab" data-note-tab="it">🇮🇹 Italiano</button>
+    </div>
+
+    <div class="note-content">
+      <p data-note-body="es">Hice este proyecto porque me cansé de que las herramientas de diseño visual para Flutter no lean tu código real — o parten de cero, o no entienden qué widgets ya construiste tú. Esto sí lo hace: abre tu proyecto de verdad, y te deja bocetar cambios sobre lo que ya existe. Es gratis y open source porque a mí me hubiera gustado tenerlo cuando empecé, sin estudios ni saber inglés, aprendiendo Flutter solo.</p>
+      <p data-note-body="en" hidden>I built this because I got tired of visual design tools for Flutter that don't read your real code — they either start from a blank canvas or have no idea what widgets you've already built. This one does: it opens your actual project and lets you sketch changes on top of what's already there. It's free and open source because I wish I'd had it when I started, self-taught, with no formal education.</p>
+      <p data-note-body="pt" hidden>Criei este projeto porque me cansei de que as ferramentas de design visual para Flutter não leiam o seu código real — ou partem do zero, ou não entendem quais widgets você já construiu. Esta lê: abre o seu projeto de verdade e permite esboçar mudanças sobre o que já existe. É gratuito e open source porque eu gostaria de tê-la quando comecei, autodidata, sem faculdade nem saber inglês.</p>
+      <p data-note-body="fr" hidden>J'ai créé ce projet parce que j'en avais assez des outils de design visuel pour Flutter qui ne lisent pas votre vrai code — ils partent d'une toile vierge ou ignorent les widgets que vous avez déjà construits. Celui-ci les lit vraiment : il ouvre votre projet réel et vous laisse esquisser des changements sur ce qui existe déjà. Il est gratuit et open source parce que j'aurais aimé l'avoir à mes débuts, autodidacte, sans formation officielle.</p>
+      <p data-note-body="de" hidden>Ich habe dieses Projekt gebaut, weil ich es leid war, dass visuelle Design-Tools für Flutter deinen echten Code nicht lesen — sie starten entweder bei null oder wissen nicht, welche Widgets du bereits gebaut hast. Dieses hier liest ihn wirklich: es öffnet dein echtes Projekt und lässt dich Änderungen über das Bestehende skizzieren. Es ist kostenlos und Open Source, weil ich es mir zu Beginn gewünscht hätte, als Autodidakt ohne formale Ausbildung und ohne Englischkenntnisse.</p>
+      <p data-note-body="it" hidden>Ho creato questo progetto perché mi ero stancato degli strumenti di design visivo per Flutter che non leggono il tuo codice reale — o partono da zero, o non capiscono quali widget hai già costruito. Questo lo fa: apre il tuo vero progetto e ti permette di abbozzare modifiche su ciò che già esiste. È gratuito e open source perché avrei voluto averlo quando ho iniziato, da autodidatta, senza studi formali né sapere l'inglese.</p>
+    </div>
+
     <div class="author">
       <span>✍️ <strong>Francisco Mateo Márquez (ApliArte)</strong> · <span data-i18n="es">Creador del proyecto</span><span data-i18n="en" hidden>Project creator</span></span>
     </div>
@@ -1398,8 +1446,24 @@ fvm flutter run -d chrome</pre>
         const ogTitle = document.querySelector('meta[property="og:title"]');
         if (ogTitle && LANG_META[lang].title) ogTitle.setAttribute('content', LANG_META[lang].title);
       }
+      // Sync note tab with page lang if matching
+      setNoteLang(lang);
       renderBanner();
     }
+
+    // Selector de idiomas de la nota personal
+    function setNoteLang(lang) {
+      document.querySelectorAll('.note-tab').forEach((tab) => {
+        tab.classList.toggle('active', tab.getAttribute('data-note-tab') === lang);
+      });
+      document.querySelectorAll('[data-note-body]').forEach((p) => {
+        p.hidden = p.getAttribute('data-note-body') !== lang;
+      });
+    }
+
+    document.querySelectorAll('.note-tab').forEach((tab) => {
+      tab.addEventListener('click', () => setNoteLang(tab.getAttribute('data-note-tab')));
+    });
 
     document.querySelectorAll('[data-setlang]').forEach((btn) => {
       btn.addEventListener('click', () => setLang(btn.getAttribute('data-setlang')));
