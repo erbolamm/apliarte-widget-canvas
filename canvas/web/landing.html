@@ -418,9 +418,10 @@
   /* ── Section heading ────────────────────────────────────── */
   .section-head { margin-bottom: 8px; }
   .section-head .eyebrow {
-    display: inline-block; color: var(--cyan); font-size: 12px; font-weight: 700;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    margin-bottom: 8px;
+    display: inline-block; color: var(--glow); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    margin-bottom: 10px;
+    text-shadow: 0 0 14px rgba(157, 127, 240, 0.35);
   }
   .section-head h2 { font-size: clamp(1.7rem, 2.6vw, 2.2rem); margin: 0 0 8px; }
   .section-head .desc { color: var(--muted); max-width: 700px; margin: 0; }
@@ -785,8 +786,7 @@
     <span class="badge green" data-i18n="en" hidden>🆓 Free</span>
     <span class="badge amber" data-i18n="es">🚫 Sin publicidad</span>
     <span class="badge amber" data-i18n="en" hidden>🚫 No ads</span>
-    <span class="badge amber" data-i18n="es">🔒 100% local</span>
-    <span class="badge amber" data-i18n="en" hidden>🔒 100% local</span>
+    <span class="badge amber">🔒 100% local</span>
   </div>
   <div class="lang-switch">
     <button type="button" data-setlang="es" class="active">ES</button>
@@ -1032,7 +1032,7 @@
     <div class="warn">⚠️ <span data-i18n="es"><strong>Primera versión:</strong> se ejecuta desde el código fuente, todavía no hay instalador de un clic. Honesto por delante de bonito.</span><span data-i18n="en" hidden><strong>First version:</strong> runs from source, no one-click installer yet. Honest before pretty.</span></div>
   </div>
 
-  <h3 style="margin-top:32px; font-size:1.05em;" class="reveal"><span data-i18n="es">Antes: ¿tienes</span><span data-i18n="en" hidden>First: do you have</span> <code class="mono">fvm</code><span data-i18n="es">?</span><span data-i18n="en" hidden>?</span></h3>
+  <h3 style="margin-top:32px; font-size:1.05em;" class="reveal"><span data-i18n="es">Antes: ¿tienes</span><span data-i18n="en" hidden>First: do you have</span> <code class="mono">fvm</code>?</h3>
   <div class="reveal">
     <p style="color:var(--muted); font-size:14px; max-width:600px;">
       <span data-i18n="es">Este proyecto necesita Flutter 3.47.2 exacto, por eso los comandos llevan el prefijo <code class="mono">fvm</code>. Es una herramienta para tener varias versiones de Flutter instaladas sin que se pisen entre proyectos.</span><span data-i18n="en" hidden>This project needs Flutter 3.47.2 exactly, that's why the commands are prefixed with <code class="mono">fvm</code>. It's a tool for keeping several Flutter versions installed without them clashing between projects.</span>
@@ -1273,12 +1273,12 @@ fvm flutter run -d chrome</pre>
   </div>
 
   <div class="note-grid">
-    <details class="note-card reveal" open><summary><span class="flag">🇪🇸</span>Español</summary><p>Hice este proyecto porque me cansé de que las herramientas de diseño visual para Flutter no lean tu código real — o parten de cero, o no entienden qué widgets ya construiste tú. Esto sí lo hace: abre tu proyecto de verdad, y te deja bocetar cambios sobre lo que ya existe. Es gratis y open source porque a mí me hubiera gustado tenerlo cuando empecé, sin estudios ni saber inglés, aprendiendo Flutter solo.</p></details>
-    <details class="note-card reveal delay-1"><summary><span class="flag">🇬🇧</span>English</summary><p>I built this because I got tired of visual design tools for Flutter that don't read your real code — they either start from a blank canvas or have no idea what widgets you've already built. This one does: it opens your actual project and lets you sketch changes on top of what's already there. It's free and open source because I wish I'd had it when I started, self-taught, with no formal education.</p></details>
-    <details class="note-card reveal delay-2"><summary><span class="flag">🇧🇷</span>Português</summary><p>Criei este projeto porque me cansei de ferramentas de design visual para Flutter que não leem seu código real — ou partem do zero, ou não entendem quais widgets você já construiu. Esta lê: abre seu projeto de verdade e permite esboçar mudanças sobre o que já existe. É gratuito e open source porque eu gostaria de tê-la quando comecei, autodidata, sem formação formal.</p></details>
-    <details class="note-card reveal delay-3"><summary><span class="flag">🇫🇷</span>Français</summary><p>J'ai créé ce projet parce que j'en avais assez des outils de design visuel pour Flutter qui ne lisent pas votre vrai code — ils partent d'une toile vierge ou ignorent les widgets que vous avez déjà construits. Celui-ci les lit vraiment : il ouvre votre projet réel et vous laisse esquisser des changements sur l'existant. Il est gratuit et open source parce que j'aurais aimé l'avoir à mes débuts, autodidacte, sans formation officielle.</p></details>
-    <details class="note-card reveal delay-4"><summary><span class="flag">🇩🇪</span>Deutsch</summary><p>Ich habe dieses Projekt gebaut, weil ich es leid war, dass visuelle Design-Tools für Flutter deinen echten Code nicht lesen — sie starten entweder bei null oder wissen nicht, welche Widgets du bereits gebaut hast. Dieses hier liest ihn wirklich: es öffnet dein echtes Projekt und lässt dich Änderungen über das Bestehende skizzieren. Es ist kostenlos und Open Source, weil ich es mir zu Beginn gewünscht hätte, als Autodidakt ohne formale Ausbildung.</p></details>
-    <details class="note-card reveal"><summary><span class="flag">🇮🇹</span>Italiano</summary><p>Ho creato questo progetto perché ero stanco degli strumenti di design visivo per Flutter che non leggono il tuo codice reale — o partono da zero, o non capiscono quali widget hai già costruito. Questo li legge davvero: apre il tuo progetto reale e ti lascia abbozzare modifiche su ciò che già esiste. È gratuito e open source perché avrei voluto averlo quando ho iniziato, autodidatta, senza formazione formale.</p></details>
+    <details class="note-card reveal" data-note-lang="es"><summary><span class="flag">🇪🇸</span>Español</summary><p>Hice este proyecto porque me cansé de que las herramientas de diseño visual para Flutter no lean tu código real — o parten de cero, o no entienden qué widgets ya construiste tú. Esto sí lo hace: abre tu proyecto de verdad, y te deja bocetar cambios sobre lo que ya existe. Es gratis y open source porque a mí me hubiera gustado tenerlo cuando empecé, sin estudios ni saber inglés, aprendiendo Flutter solo.</p></details>
+    <details class="note-card reveal delay-1" data-note-lang="en"><summary><span class="flag">🇬🇧</span>English</summary><p>I built this because I got tired of visual design tools for Flutter that don't read your real code — they either start from a blank canvas or have no idea what widgets you've already built. This one does: it opens your actual project and lets you sketch changes on top of what's already there. It's free and open source because I wish I'd had it when I started, self-taught, with no formal education.</p></details>
+    <details class="note-card reveal delay-2" data-note-lang="pt"><summary><span class="flag">🇧🇷</span>Português</summary><p>Criei este projeto porque me cansei de ferramentas de design visual para Flutter que não leem seu código real — ou partem do zero, ou não entendem quais widgets você já construiu. Esta lê: abre seu projeto de verdade e permite esboçar mudanças sobre o que já existe. É gratuito e open source porque eu gostaria de tê-la quando comecei, autodidata, sem formação formal.</p></details>
+    <details class="note-card reveal delay-3" data-note-lang="fr"><summary><span class="flag">🇫🇷</span>Français</summary><p>J'ai créé ce projet parce que j'en avais assez des outils de design visuel pour Flutter qui ne lisent pas votre vrai code — ils partent d'une toile vierge ou ignorent les widgets que vous avez déjà construits. Celui-ci les lit vraiment : il ouvre votre projet réel et vous laisse esquisser des changements sur l'existant. Il est gratuit et open source parce que j'aurais aimé l'avoir à mes débuts, autodidacte, sans formation officielle.</p></details>
+    <details class="note-card reveal delay-4" data-note-lang="de"><summary><span class="flag">🇩🇪</span>Deutsch</summary><p>Ich habe dieses Projekt gebaut, weil ich es leid war, dass visuelle Design-Tools für Flutter deinen echten Code nicht lesen — sie starten entweder bei null oder wissen nicht, welche Widgets du bereits gebaut hast. Dieses hier liest ihn wirklich: es öffnet dein echtes Projekt und lässt dich Änderungen über das Bestehende skizzieren. Es ist kostenlos und Open Source, weil ich es mir zu Beginn gewünscht hätte, als Autodidakt ohne formale Ausbildung.</p></details>
+    <details class="note-card reveal" data-note-lang="it"><summary><span class="flag">🇮🇹</span>Italiano</summary><p>Ho creato questo progetto perché ero stanco degli strumenti di design visivo per Flutter che non leggono il tuo codice reale — o partono da zero, o non capiscono quali widget hai già costruito. Questo li legge davvero: apre il tuo progetto reale e ti lascia abbozzare modifiche su ciò che già esiste. È gratuito e open source perché avrei voluto averlo quando ho iniziato, autodidatta, senza formazione formale.</p></details>
   </div>
 </section>
 
@@ -1347,6 +1347,18 @@ fvm flutter run -d chrome</pre>
 
     let currentLang = 'es';
 
+    // Títulos y descripciones por idioma, para <title> y <meta description>
+    const LANG_META = {
+      es: {
+        title: 'ApliArte Widget Canvas — Bocetea tu app Flutter real',
+        desc: 'ApliArte Widget Canvas abre tu proyecto Flutter real, te deja anotar con Callouts numerados, flechas y reglas, y exportar prompts quirúrgicos o generar código con IA — 100% en tu máquina.'
+      },
+      en: {
+        title: 'ApliArte Widget Canvas — Sketch your real Flutter app',
+        desc: 'ApliArte Widget Canvas opens your real Flutter project, lets you annotate with numbered Callouts, arrows and rulers, and export surgical prompts or generate code with AI — 100% on your machine.'
+      }
+    };
+
     function setLang(lang) {
       currentLang = lang;
       document.querySelectorAll('[data-i18n]').forEach((el) => {
@@ -1356,11 +1368,28 @@ fvm flutter run -d chrome</pre>
         btn.classList.toggle('active', btn.getAttribute('data-setlang') === lang);
       });
       document.documentElement.lang = lang;
+      // Update <title> and <meta name="description"> for sharing
+      if (LANG_META[lang]) {
+        if (LANG_META[lang].title) document.title = LANG_META[lang].title;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc && LANG_META[lang].desc) metaDesc.setAttribute('content', LANG_META[lang].desc);
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle && LANG_META[lang].title) ogTitle.setAttribute('content', LANG_META[lang].title);
+      }
+      // Open the personal note matching the current language, close the others
+      document.querySelectorAll('.note-card[data-note-lang]').forEach((d) => {
+        d.open = d.getAttribute('data-note-lang') === lang;
+      });
       renderBanner();
     }
 
     document.querySelectorAll('[data-setlang]').forEach((btn) => {
       btn.addEventListener('click', () => setLang(btn.getAttribute('data-setlang')));
+    });
+
+    // Initial state: open the note matching the default language
+    document.querySelectorAll('.note-card[data-note-lang]').forEach((d) => {
+      d.open = d.getAttribute('data-note-lang') === currentLang;
     });
 
     // Banner flotante de comunidad
