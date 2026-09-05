@@ -306,4 +306,25 @@ void main() {
     // El widget NUEVO vuelve a aparecer
     expect(find.text('NUEVO'), findsOneWidget);
   });
+
+  testWidgets('cargar demo interactiva precarga el arbol de BarraPrincipal sin servidor', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const FlutterCanvasApp());
+
+    // El botón de demo interactiva debe estar presente en el estado vacío
+    final botonDemo = find.text('Cargar demo interactiva (BarraPrincipal)');
+    expect(botonDemo, findsOneWidget);
+
+    await tester.tap(botonDemo);
+    await tester.pumpAndSettle();
+
+    // Ahora el canvas tiene cargado el árbol de BarraPrincipal
+    expect(find.text('BarraPrincipal (Demo)'), findsOneWidget);
+    expect(find.text('FondoApli'), findsWidgets);
+    expect(find.text('Scaffold'), findsWidgets);
+  });
 }

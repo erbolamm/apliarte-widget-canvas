@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'data/demo_data.dart';
 import 'models/boceto_sesion.dart';
 import 'models/historial_canvas.dart';
 import 'models/piece_node.dart';
@@ -276,6 +277,20 @@ class _HomePageState extends State<HomePage> {
       _claseOrigen = nombreClase;
       _piezaSeleccionada = null;
       _tabSeleccionada = 1;
+      _error = null;
+    });
+  }
+
+  void _cargarDemo() {
+    _guardarSnapshot();
+    setState(() {
+      _historial.limpiar();
+      _raiz = obtenerArbolDemo();
+      _archivoOrigen = '/lib/pages/00_Principal/barra_principal.dart';
+      _claseOrigen = 'BarraPrincipal (Demo)';
+      _archivoController.text = _archivoOrigen!;
+      _claseController.text = 'BarraPrincipal';
+      _piezaSeleccionada = null;
       _error = null;
     });
   }
@@ -622,6 +637,33 @@ class _HomePageState extends State<HomePage> {
     _guardarSnapshot();
     setState(() => _expandiendo = true);
     try {
+      if (_servidorVivo != true) {
+        final hijosDemo = obtenerHijosDemoPara(nodo.type);
+        if (hijosDemo != null) {
+          setState(() {
+            nodo.children.clear();
+            nodo.children.addAll(hijosDemo);
+            nodo.expandido = true;
+            for (var i = 0; i < nodo.children.length; i++) {
+              autoLayout(
+                nodo.children[i],
+                startX: nodo.x + 30 + (i * 180),
+                startY: nodo.y + 110,
+              );
+            }
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Widget "${nodo.type}" expandido en modo demo.'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+          return;
+        }
+      }
+
       final raizProyecto = _archivoOrigen!.substring(0, _archivoOrigen!.indexOf('/lib/'));
       final archivoReal = '$raizProyecto/${nodo.sourceFile}';
 
@@ -698,6 +740,15 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+          if (_raiz == null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilledButton.tonalIcon(
+                onPressed: _cargarDemo,
+                icon: const Icon(Icons.play_arrow_rounded, size: 16),
+                label: const Text('Cargar Demo'),
+              ),
+            ),
           if (_raiz != null) ...[
             IconButton(
               tooltip: 'Deshacer (⌘Z / Ctrl+Z)',
@@ -719,12 +770,19 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
           if (_raiz != null && _raiz!.esPuntoDeDecision)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Center(
-                child: Text(
-                  'Hay ${_raiz!.propios.length} widgets propios — toca cada caja para expandir',
-                  style: const TextStyle(fontSize: 12),
+            Tooltip(
+              message: 'Toca cada caja para expandir widgets propios',
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Chip(
+                  avatar: Icon(Icons.touch_app_rounded, size: 14, color: scheme.primary),
+                  label: Text(
+                    '${_raiz!.propios.length} propios',
+                    style: TextStyle(fontSize: 11, color: scheme.onSurface),
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  padding: EdgeInsets.zero,
                 ),
               ),
             ),
@@ -818,8 +876,11 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (_servidorVivo == false) ...[
-                              _AvisoServidorCaido(onReintentar: _comprobarServidor),
+                            if (_servidorVivo == false && _tabSeleccionada == 0) ...[
+                              _AvisoServidorCaido(
+                                onReintentar: _comprobarServidor,
+                                onCargarDemo: _cargarDemo,
+                              ),
                               const SizedBox(height: 16),
                             ],
 
@@ -859,22 +920,50 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: _raiz == null
                 ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.brush_outlined, size: 48, color: scheme.outline),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Carga un árbol para empezar a bocetar',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 14),
-                        FilledButton.tonalIcon(
-                          onPressed: () => _abrirPantallaEnBlanco('', 'Mi Pantalla'),
-                          icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text('Empezar con lienzo en blanco'),
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: scheme.primaryContainer.withValues(alpha: 0.3),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.account_tree_outlined, size: 44, color: scheme.primary),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Carga un árbol para empezar a bocetar',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Edita y anota sobre tu app Flutter real, no sobre un lienzo en blanco.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+                          ),
+                          const SizedBox(height: 20),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 10,
+                            alignment: WrapAlignment.center,
+                            children: [
+                              FilledButton.icon(
+                                onPressed: _cargarDemo,
+                                icon: const Icon(Icons.play_arrow_rounded, size: 20),
+                                label: const Text('Cargar demo interactiva (BarraPrincipal)'),
+                              ),
+                              OutlinedButton.icon(
+                                onPressed: () => _abrirPantallaEnBlanco('', 'Mi Pantalla'),
+                                icon: const Icon(Icons.add_rounded, size: 18),
+                                label: const Text('Empezar con lienzo en blanco'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 : CanvasView(
@@ -1871,7 +1960,11 @@ class _TabButton extends StatelessWidget {
 
 class _AvisoServidorCaido extends StatelessWidget {
   final VoidCallback onReintentar;
-  const _AvisoServidorCaido({required this.onReintentar});
+  final VoidCallback onCargarDemo;
+  const _AvisoServidorCaido({
+    required this.onReintentar,
+    required this.onCargarDemo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1879,42 +1972,62 @@ class _AvisoServidorCaido extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: scheme.errorContainer,
+        color: scheme.surfaceContainerHighest.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: scheme.error, width: 1.5),
+        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.6), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.warning_amber_rounded, size: 18, color: scheme.onErrorContainer),
+              Icon(Icons.cloud_off_rounded, size: 18, color: scheme.primary),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Servidor local no detectado',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: scheme.onErrorContainer, fontSize: 13),
+                  'Modo Web / Servidor local inactivo',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: scheme.onSurface, fontSize: 13),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
-            'Sin él no se puede cargar ni expandir nada. Ábrelo en una terminal:',
-            style: TextStyle(fontSize: 12, color: scheme.onErrorContainer),
-          ),
-          const SizedBox(height: 6),
-          SelectableText(
-            'cd servidor\ndart run bin/servidor.dart',
-            style: TextStyle(fontSize: 11, fontFamily: 'monospace', color: scheme.onErrorContainer),
+            'En la web puedes explorar el árbol de ejemplo interactivo sin instalar nada:',
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
+          FilledButton.tonalIcon(
+            onPressed: onCargarDemo,
+            icon: const Icon(Icons.play_arrow_rounded, size: 16),
+            label: const Text('Cargar Demo (BarraPrincipal)'),
+            style: FilledButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Divider(height: 1),
+          const SizedBox(height: 8),
+          Text(
+            'Para analizar tu app Flutter local en tu máquina:',
+            style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 4),
+          SelectableText(
+            'cd servidor\ndart run bin/servidor.dart',
+            style: TextStyle(fontSize: 11, fontFamily: 'monospace', color: scheme.primary),
+          ),
+          const SizedBox(height: 4),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
               onPressed: onReintentar,
-              icon: const Icon(Icons.refresh, size: 16),
-              label: const Text('Reintentar'),
+              icon: const Icon(Icons.refresh, size: 14),
+              label: const Text('Reintentar conexión'),
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                textStyle: const TextStyle(fontSize: 11),
+              ),
             ),
           ),
         ],
