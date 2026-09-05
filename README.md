@@ -5,7 +5,7 @@
 🌐 **[erbolamm.github.io/apliarte-widget-canvas](https://erbolamm.github.io/apliarte-widget-canvas/)** · 📄 **[Landing Page](https://erbolamm.github.io/apliarte-widget-canvas/landing.html)**
 
 [![Estado](https://img.shields.io/badge/estado-Beta%20Web%20%2B%20Local-orange)](#cómo-funciona)
-[![Platform](https://img.shields.io/badge/platform-Web%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-blue)](#estructura-del-repo)
+[![Platform](https://img.shields.io/badge/platform-Web%20%7C%20Dart%20CLI-blue)](#estructura-del-repo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <p align="center">
@@ -180,9 +180,7 @@ cd apliarte-widget-canvas/canvas
 fvm flutter run -d chrome
 ```
 
-That's it — with both terminals running, type the `.dart` file path and the class name right in
-the canvas, then hit "Cargar en el canvas". No third terminal, no running the extractor by hand:
-the canvas asks the server for it directly.
+That's it — with both terminals running, you no longer need to type paths by hand: the canvas includes a **Smart Project Explorer** that automatically scans all screens and widgets across your project. Pick your screen with a single click, or load a screenshot of your real app inside the emulator to start sketching and annotating immediately.
 
 *(If you'd rather generate the JSON yourself, that option is still there — "Alternativa: pegar
 JSON a mano", collapsed in the panel — useful if the server isn't running or you want to save the
@@ -195,12 +193,9 @@ against Widgetbook/FlutterViz/flutter_ide, etc. — currently in Spanish, transl
 ---
 
 ## Autor
-Javier Mateo (ApliArte) — github.com/erbolamm
+Francisco Mateo Márquez (Javier Mateo - ApliArte) — github.com/erbolamm
 
 ## 💬 Una nota personal del autor / A personal note from the author
-
-> ⚠️ **Borrador — pendiente de que Javier lo escriba/revise con su propia voz antes de publicar.**
-> Lo que sigue es un punto de partida, no el mensaje final.
 
 ℹ️ Nota: El texto siguiente es un mensaje personal del autor, escrito en varios idiomas para que pueda leerlo gente de todo el mundo. Esto no implica que el proyecto tenga soporte funcional completo en esos idiomas.
 
